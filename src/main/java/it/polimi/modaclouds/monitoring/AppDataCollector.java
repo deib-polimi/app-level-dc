@@ -16,7 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring;
 
-import it.polimi.modaclouds.monitoring.ddaapi.ConnectionErrorException;
 import it.polimi.modaclouds.monitoring.ddaapi.DDAConnector;
 import it.polimi.modaclouds.monitoring.ddaapi.ValidationErrorException;
 import it.polimi.modaclouds.monitoring.objectstoreapi.ObjectStoreConnector;
@@ -39,8 +38,7 @@ public class AppDataCollector {
 	private Logger logger = LoggerFactory.getLogger(AppDataCollector.class.getName());
 	private Config config = Config.getInstance();
 
-	public AppDataCollector() throws MalformedURLException,
-			ConnectionErrorException {
+	public AppDataCollector() throws MalformedURLException {
 		ddaConnector = DDAConnector.getInstance();
 		objectStoreConnector = ObjectStoreConnector.getInstance();
 		artefactType = config.getArtefactType();
