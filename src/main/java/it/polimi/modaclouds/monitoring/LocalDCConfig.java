@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 deib-polimi
+ * Copyright 2014 deib-polimi
  * Contact: deib-polimi <marco.miglierina@polimi.it>
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,13 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class Config {
-	private static Config _instance = null;
-	private static final Logger logger = LoggerFactory.getLogger(Config.class); 
+public class LocalDCConfig {
+	private static LocalDCConfig _instance = null;
+	private static final Logger logger = LoggerFactory.getLogger(LocalDCConfig.class); 
 	
 	private Configuration config;
 	
-	private Config(){
+	private LocalDCConfig(){
 		try {
 			config = new PropertiesConfiguration("dc.properties");
 		} catch (ConfigurationException e) {
@@ -37,18 +37,30 @@ public class Config {
 		}
 	}
 			
-	public static Config getInstance(){
+	public static LocalDCConfig getInstance(){
 		if(_instance==null)
-			_instance=new Config();
+			_instance=new LocalDCConfig();
 		return _instance;
 	}
 	
-	public String getArtefactID(){
-		return config.getString("artifact.id");
+	public String getComponentID(){
+		return config.getString("component.id");
 	}
 
-	public String getArtefactType() {
-		return config.getString("artifact.type");
+	public String getComponentType() {
+		return config.getString("component.type");
+	}
+
+	public long getRefreshingPeriod() {
+		return config.getLong("refreshing.period");
+	}
+
+	public long getRefreshingDelay() {
+		return config.getLong("refreshing.delay");
+	}
+
+	public String getDataCollectorID() {
+		return config.getString("datacollector.id");
 	}
 	
 	

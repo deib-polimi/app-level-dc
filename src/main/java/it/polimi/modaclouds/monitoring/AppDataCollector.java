@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 deib-polimi
+ * Copyright 2014 deib-polimi
  * Contact: deib-polimi <marco.miglierina@polimi.it>
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,45 +19,84 @@ package it.polimi.modaclouds.monitoring;
 import it.polimi.modaclouds.monitoring.ddaapi.DDAConnector;
 import it.polimi.modaclouds.monitoring.ddaapi.ValidationErrorException;
 import it.polimi.modaclouds.monitoring.objectstoreapi.ObjectStoreConnector;
+import it.polimi.modaclouds.monitoring.objectstoreapi.dto.ComponentConfig;
+import it.polimi.modaclouds.monitoring.objectstoreapi.dto.DataCollectorConfig;
 
 import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AppDataCollector {
 
+	private Logger logger = LoggerFactory.getLogger(AppDataCollector.class
+			.getName());
+
+	private final ScheduledExecutorService scheduler = Executors
+			.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> refreshingThreadHandler;
+
 	private DDAConnector ddaConnector;
 	private ObjectStoreConnector objectStoreConnector;
-	private Map<String, String> operationsIDs;
-	private String artefactType;
-	private String artefactID;
-	
-	private Logger logger = LoggerFactory.getLogger(AppDataCollector.class.getName());
-	private Config config = Config.getInstance();
+	private String componentType;
+	private String componentID;
+	private String dataCollectorID;
+	private long refreshingPeriod;
+	private long refreshingDelay;
+	private LocalDCConfig localDCConfig = LocalDCConfig.getInstance();
+
+	private ComponentConfig componentConfig;
+	private DataCollectorConfig dataCollectorConfig;
+
+	final Runnable configLoader = new Runnable() {
+		public void run() {
+			refresh();
+		}
+	};
 
 	public AppDataCollector() throws MalformedURLException {
 		ddaConnector = DDAConnector.getInstance();
 		objectStoreConnector = ObjectStoreConnector.getInstance();
-		artefactType = config.getArtefactType();
-		artefactID = config.getArtefactID();
-		initFromObjectStore();
+		componentType = localDCConfig.getComponentType();
+		componentID = localDCConfig.getComponentID();
+		dataCollectorID = localDCConfig.getDataCollectorID();
+		refreshingPeriod = localDCConfig.getRefreshingPeriod();
+		refreshingDelay = localDCConfig.getRefreshingDelay();
+		startRefreshing();
 	}
 
-	private void initFromObjectStore() {
-		operationsIDs = new HashMap<String, String>();
-		for (String operationName: objectStoreConnector.getOperationsNames(artefactType)) {
-			operationsIDs.put(operationName, objectStoreConnector.getOperationID(artefactID,operationName));
-		}
+	private void startRefreshing() {
+		refreshingThreadHandler = scheduler.scheduleAtFixedRate(configLoader,
+				refreshingDelay, refreshingPeriod, TimeUnit.SECONDS);
+	}
+
+	protected void refresh() {
+		ComponentConfig newComponentConfig = objectStoreConnector
+				.getComponentConfig(componentID);
+		if (newComponentConfig.getVersion() > this.componentConfig.getVersion())
+			this.componentConfig = newComponentConfig;
+
+		DataCollectorConfig newDataCollectorConfig = objectStoreConnector
+				.getDataCollectorConfig(dataCollectorID);
+		if (newDataCollectorConfig.getVersion() > this.dataCollectorConfig
+				.getVersion())
+			this.dataCollectorConfig = newDataCollectorConfig;
 	}
 
 	protected void send(String value, String metric, String methodName) {
-		try {
-			ddaConnector.sendAsyncMonitoringDatum(value, metric, operationsIDs.get(methodName));
-		} catch (ValidationErrorException e) {
-			logger.error("Invalid resource id, resource id must be a valid UUID: " + e.getMessage());
+		if (dataCollectorConfig.isEnabled()) {
+			try {
+				ddaConnector.sendAsyncMonitoringDatum(value, metric,
+						componentConfig.getMethodsIDs().get(methodName));
+			} catch (ValidationErrorException e) {
+				logger.error("Invalid resource id, resource id must be a valid UUID: "
+						+ e.getMessage());
+			}
 		}
 	}
+
 }
