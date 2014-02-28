@@ -51,6 +51,15 @@ public class AppDataCollector {
 
 	private ComponentConfig componentConfig;
 	private DataCollectorConfig dataCollectorConfig;
+	
+	private static AppDataCollector _instance = null;
+
+	public static AppDataCollector getInstance() throws MalformedURLException {
+		if (_instance == null) {
+			_instance = new AppDataCollector();
+		}
+		return _instance;
+	}
 
 	final Runnable configLoader = new Runnable() {
 		public void run() {
