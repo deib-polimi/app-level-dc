@@ -98,15 +98,15 @@ public class AppDataCollector {
 
 	protected void send(String value, String metric, String methodName) {
 		logger.info(value+metric+methodName);
-		if (dataCollectorConfig.isEnabled()) {
-			try {
-				ddaConnector.sendAsyncMonitoringDatum(value, metric,
-						componentConfig.getMethodsIDs().get(methodName));
-			} catch (ValidationErrorException e) {
-				logger.error("Invalid resource id, resource id must be a valid UUID: "
-						+ e.getMessage());
-			}
-		}
+//		if (dataCollectorConfig.isEnabled()) {
+//			try {
+//				ddaConnector.sendAsyncMonitoringDatum(value, metric,
+//						componentConfig.getMethodsIDs().get(methodName));
+//			} catch (ValidationErrorException e) {
+//				logger.error("Invalid resource id, resource id must be a valid UUID: "
+//						+ e.getMessage());
+//			}
+//		}
 	}
 
 }
