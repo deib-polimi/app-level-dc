@@ -32,7 +32,7 @@ public class responseTimeTest {
 
 	@Test
 	public void test() {
-//		fakeServlet.login();		
+		fakeServlet.login();		
 	}
 	
 	public class FakeServlet {
