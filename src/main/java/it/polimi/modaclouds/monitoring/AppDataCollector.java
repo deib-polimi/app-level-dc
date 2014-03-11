@@ -97,6 +97,7 @@ public class AppDataCollector {
 	}
 
 	protected void send(String value, String metric, String methodName) {
+		logger.info(value+metric+methodName);
 		if (dataCollectorConfig.isEnabled()) {
 			try {
 				ddaConnector.sendAsyncMonitoringDatum(value, metric,

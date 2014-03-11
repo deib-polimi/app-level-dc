@@ -19,10 +19,14 @@ package it.polimi.modaclouds.monitoring;
 import java.net.MalformedURLException;
 
 import org.aspectj.lang.annotation.SuppressAjWarnings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public aspect AspectResponseTimeMonitoring {
 	
+	private Logger logger = LoggerFactory.getLogger(AspectResponseTimeMonitoring.class
+			.getName());
 	private long start;
 	private long end;
 	long elapse;
@@ -34,18 +38,22 @@ public aspect AspectResponseTimeMonitoring {
 	@SuppressAjWarnings({"adviceDidNotMatch"})
 	before(MonitoredMetric myAnnotation) : startMethod(myAnnotation) {
 		start = System.currentTimeMillis();
-		System.out.println("start time: " + start);
+		logger.info("start time: " + start);
 		
 	}
 		
 	@SuppressAjWarnings({"adviceDidNotMatch"})
-	after (MonitoredMetric myAnnotation) throws MalformedURLException: endMethod(myAnnotation){
+	after (MonitoredMetric myAnnotation): endMethod(myAnnotation){
 
 		end =  System.currentTimeMillis();
 		long elapse = end - start;
-		System.out.println("end Time: " + end );
-		System.out.println("Aspect elapsed time:" + elapse );
-		AppDataCollector.getInstance().send(String.valueOf(elapse), "response-time", thisEnclosingJoinPointStaticPart.getSignature().getName().toString());
+		logger.info("end Time: " + end );
+		logger.info("Aspect elapsed time:" + elapse );
+		try {
+			AppDataCollector.getInstance().send(String.valueOf(elapse), "response-time", thisEnclosingJoinPointStaticPart.getSignature().getName().toString());
+		} catch (MalformedURLException e) {
+			logger.error("Error while sending data to the DDA", e);
+		}
 
 	}
 
