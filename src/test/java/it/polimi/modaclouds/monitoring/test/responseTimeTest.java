@@ -37,7 +37,7 @@ public class responseTimeTest {
 	
 	public class FakeServlet {
 
-		@MonitoredMetric("response-time")
+		@MonitoredMetric("ResponseTime")
 		public void login() {
 			try {
 				Thread.sleep(1000);
