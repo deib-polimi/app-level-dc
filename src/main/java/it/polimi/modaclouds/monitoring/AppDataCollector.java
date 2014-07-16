@@ -17,11 +17,12 @@
 package it.polimi.modaclouds.monitoring;
 
 import it.polimi.modaclouds.monitoring.ddaapi.DDAConnector;
-import it.polimi.modaclouds.monitoring.ddaapi.ValidationErrorException;
-import it.polimi.modaclouds.monitoring.objectstoreapi.ObjectStoreConnector;
-import it.polimi.modaclouds.monitoring.objectstoreapi.dto.ComponentConfig;
-import it.polimi.modaclouds.monitoring.objectstoreapi.dto.DataCollectorConfig;
+import it.polimi.modaclouds.monitoring.kb.api.KBConnector;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.DCFactory;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.DataCollector;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.MonitorableResource;
 
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,20 +42,25 @@ public class AppDataCollector {
 	private ScheduledFuture<?> refreshingThreadHandler;
 
 	private DDAConnector ddaConnector;
-	private ObjectStoreConnector objectStoreConnector;
-	private String componentType;
-	private String componentID;
-	private String dataCollectorID;
+	private KBConnector kbConnector;
 	private long refreshingPeriod;
 	private long refreshingDelay;
-	private LocalDCConfig localDCConfig = LocalDCConfig.getInstance();
+	private String dcFactoryURI;
+	private DCFactory dcFactory;
+	private String targetURI;
 
-	private ComponentConfig componentConfig;
-	private DataCollectorConfig dataCollectorConfig;
-	
+	public String getDcFactoryURI() {
+		return dcFactoryURI;
+	}
+
+	public void setDcFactoryURI(String dcFactoryURI) {
+		this.dcFactoryURI = dcFactoryURI;
+	}
+
 	private static AppDataCollector _instance = null;
 
-	public static AppDataCollector getInstance() throws MalformedURLException {
+	public static AppDataCollector getInstance() throws MalformedURLException,
+			FileNotFoundException {
 		if (_instance == null) {
 			_instance = new AppDataCollector();
 		}
@@ -67,14 +73,10 @@ public class AppDataCollector {
 		}
 	};
 
-	public AppDataCollector() throws MalformedURLException {
+	public AppDataCollector() throws MalformedURLException,
+			FileNotFoundException {
 		ddaConnector = DDAConnector.getInstance();
-		objectStoreConnector = ObjectStoreConnector.getInstance();
-		componentType = localDCConfig.getComponentType();
-		componentID = localDCConfig.getComponentID();
-		dataCollectorID = localDCConfig.getDataCollectorID();
-		refreshingPeriod = localDCConfig.getRefreshingPeriod();
-		refreshingDelay = localDCConfig.getRefreshingDelay();
+		kbConnector = KBConnector.getInstance();
 		startRefreshing();
 	}
 
@@ -84,29 +86,35 @@ public class AppDataCollector {
 	}
 
 	protected void refresh() {
-		ComponentConfig newComponentConfig = objectStoreConnector
-				.getComponentConfig(componentID);
-		if (newComponentConfig.getVersion() > this.componentConfig.getVersion())
-			this.componentConfig = newComponentConfig;
-
-		DataCollectorConfig newDataCollectorConfig = objectStoreConnector
-				.getDataCollectorConfig(dataCollectorID);
-		if (newDataCollectorConfig.getVersion() > this.dataCollectorConfig
-				.getVersion())
-			this.dataCollectorConfig = newDataCollectorConfig;
+		DCFactory newDCFactory = (DCFactory) kbConnector.get(dcFactoryURI);
+		dcFactory = newDCFactory;
 	}
 
 	protected void send(String value, String metric, String methodName) {
-		logger.info(value+metric+methodName);
-//		if (dataCollectorConfig.isEnabled()) {
-//			try {
-//				ddaConnector.sendAsyncMonitoringDatum(value, metric,
-//						componentConfig.getMethodsIDs().get(methodName));
-//			} catch (ValidationErrorException e) {
-//				logger.error("Invalid resource id, resource id must be a valid UUID: "
-//						+ e.getMessage());
-//			}
-//		}
+		logger.info(value + " " + metric + " " + methodName);
+		for (DataCollector dc : dcFactory.getInstantiatedDCs()) {
+			String methodURI = targetURI + "/" + methodName;
+			if (dc.getCollectedMetric().equals(metric)
+					&& hasTargetMethod(methodURI, dc)) {
+				ddaConnector.sendAsyncMonitoringDatum(value, metric, methodURI);
+			}
+		}
+	}
+
+	private boolean hasTargetMethod(String methodURI, DataCollector dc) {
+		for (MonitorableResource target : dc.getTargetResources()) {
+			if (target.getUri().equals(methodURI))
+				return true;
+		}
+		return false;
+	}
+
+	public String getTargetURI() {
+		return targetURI;
+	}
+
+	public void setTargetURI(String targetURI) {
+		this.targetURI = targetURI;
 	}
 
 }

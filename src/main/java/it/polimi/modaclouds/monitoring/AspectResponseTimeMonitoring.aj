@@ -16,6 +16,7 @@
  */
 package it.polimi.modaclouds.monitoring;
 
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import org.aspectj.lang.annotation.SuppressAjWarnings;
@@ -50,8 +51,8 @@ public aspect AspectResponseTimeMonitoring {
 		logger.info("end Time: " + end );
 		logger.info("Aspect elapsed time:" + elapse );
 		try {
-			AppDataCollector.getInstance().send(String.valueOf(elapse), "response-time", thisEnclosingJoinPointStaticPart.getSignature().getName().toString());
-		} catch (MalformedURLException e) {
+			AppDataCollector.getInstance().send(String.valueOf(elapse), "ResponseTime", thisEnclosingJoinPointStaticPart.getSignature().getName().toString());
+		} catch (MalformedURLException | FileNotFoundException e) {
 			logger.error("Error while sending data to the DDA", e);
 		}
 
