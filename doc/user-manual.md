@@ -32,7 +32,7 @@ Dependency:
 	<dependency>
 		<groupId>it.polimi.modaclouds.monitoring</groupId>
 		<artifactId>app-level-dc</artifactId>
-		<version>0.2-SNAPSHOT</version>
+		<version>0.2</version>
 	</dependency>
 </dependencies>
 ```
