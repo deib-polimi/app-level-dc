@@ -14,40 +14,29 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.test;
+package it.polimi.modaclouds.monitoring.appleveldc.metrics;
 
-import it.polimi.modaclouds.monitoring.MonitoredMetric;
+import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+public class ServiceTime {
 
-public class responseTimeTest {
+	public static final String id = "ServiceTime";
 	
-	private FakeServlet fakeServlet;
-	
-	@Before
-	public void init() {
-		fakeServlet = new FakeServlet();
-	}
+	public enum Parameter {
+		samplingProbability ("1");
+		
+		private String defaultValue;
 
-	@Test
-	public void test() {
-		fakeServlet.login();		
-	}
-	
-	public class FakeServlet {
-
-		@MonitoredMetric("ResponseTime")
-		public void login() {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		private Parameter(String defaultValue) {
+			this.defaultValue = defaultValue;
 		}
+	}	
 
+	public static double getSamplingProbability(Map<String, String> parameters) {
+		String samplingProbability = parameters.get(Parameter.samplingProbability.name());
+		if (samplingProbability == null)
+			samplingProbability = Parameter.samplingProbability.defaultValue;
+		return Double.valueOf(samplingProbability);
 	}
-
 
 }

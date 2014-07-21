@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.polimi.modaclouds.monitoring</groupId>
 	<artifactId>app-level-dc</artifactId>
-	<version>0.1</version>
+	<version>0.2-SNAPSHOT</version>
 
 	<inceptionYear>2014</inceptionYear>
 
@@ -39,6 +39,8 @@
 		<github.user.name>deib-polimi</github.user.name>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.owner>deib-polimi</project.owner>
+		<project.contact>marco.miglierina@polimi.it</project.contact>
 	</properties>
 
 	<distributionManagement>
@@ -70,13 +72,7 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
-			<type>jar</type>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>it.polimi.modaclouds.monitoring</groupId>
-			<artifactId>dda-api</artifactId>
-			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.aspectj</groupId>
@@ -84,11 +80,25 @@
 			<version>1.7.3</version>
 		</dependency>
 		<dependency>
-			<groupId>
-				it.polimi.modaclouds.monitoring.knowledge-base-api
-			</groupId>
-			<artifactId>knowledge-base-api</artifactId>
-			<version>1.0.3</version>
+			<groupId>it.polimi.modaclouds.monitoring</groupId>
+			<artifactId>data-collector-factory</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.9-RC2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>xml-apis</artifactId>
+					<groupId>xml-apis</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
@@ -97,13 +107,6 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<!-- <archive>
-						<manifest>
-							<mainClass>
-								com.test.your.main.class.goes.Here
-							</mainClass>
-						</manifest>
-					</archive> -->
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
@@ -195,8 +198,8 @@
 					<properties>
 						<organization>deib-polimi</organization>
 						<year>${project.inceptionYear}</year>
-						<owner>deib-polimi</owner>
-						<email>marco.miglierina@polimi.it</email>
+						<owner>${project.owner}</owner>
+						<email>${project.contact}</email>
 						<artid>${project.artifactId}</artid>
 					</properties>
 					<mapping>

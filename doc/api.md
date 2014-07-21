@@ -4,4 +4,4 @@
 
 ## Java API
 
-See the [javadoc](http://deib-polimi.github.io/modaclouds-dda-api/).
+See the [javadoc](http://deib-polimi.github.io/modaclouds-app-level-dc/).

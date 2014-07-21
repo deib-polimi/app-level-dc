@@ -2,7 +2,7 @@
 
 # User Manual
 
-## Installation
+## Usage
 
 In order to use the library you should first add our library as a dependency in your maven project:
 
@@ -32,12 +32,12 @@ Dependency:
 	<dependency>
 		<groupId>it.polimi.modaclouds.monitoring</groupId>
 		<artifactId>app-level-dc</artifactId>
-		<version>VERSION</version>
+		<version>0.2-SNAPSHOT</version>
 	</dependency>
 </dependencies>
 ```
 
-Then we need to include in your build life cycle the aspectj plugin:
+Then you need to include in your build life cycle the aspectj plugin:
 
 ```xml
 <build>
@@ -68,30 +68,18 @@ Then we need to include in your build life cycle the aspectj plugin:
         </plugin>
 	</plugins>
 </build>
-            
 ```
 
-## Configuration
+Have a look at the examples in the examples package for understanding how to use the library.
 
-Add to your project build path a properties file named "objectostore.properties" with information about the
-object store address and port. Example:
+In short:
+- Annotate methods you want to monitor the ServiceTime, passing the name (type) of the monitored method
+- Have the data collector initialized at startup
+- Expose required environment variables (See class Env for the complete list of environment variables)
 
-```
-objs_server.address=localhost
-objs_server.port=8800
-```
+KB and DDA must be running for the data collectors to be able to 
+retrieve their configuration from the KB and to be able to feed the DDA.
 
-## Usage
-
-Just add annotation `@MonitoredMetric("<MetricID>")` to the method to be monitored.
-For this first release <MetricID> can 
-only be either "ResponseTime" or "Throughput".
-
-## Code Samples
-
-```java
-@MonitoredMetric("ResponseTime")
-public void login() {
-	// do login
-}
-```
+In the FakeServleExample a new DC is installed in the KB after 5 seconds. This is just done
+for the purpose of the example, the monitoring manager will take care of installing data collectors
+on the KB.
