@@ -17,5 +17,6 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 ## Additional references
 
 Eclipse AJDT Plugin: https://www.eclipse.org/ajdt/
+
 AJDT M2E Connector update site: http://dist.springsource.org/release/AJDT/configurator/
 

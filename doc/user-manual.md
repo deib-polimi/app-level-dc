@@ -82,4 +82,4 @@ retrieve their configuration from the KB and to be able to feed the DDA.
 
 In the FakeServleExample a new DC is installed in the KB after 5 seconds. This is just done
 for the purpose of the example, the monitoring manager will take care of installing data collectors
-on the KB.
+on the KB in a normal scenario.
