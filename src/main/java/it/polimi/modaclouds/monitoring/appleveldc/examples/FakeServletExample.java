@@ -16,16 +16,15 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc.examples;
 
-import java.net.URISyntaxException;
-
 import it.polimi.modaclouds.monitoring.appleveldc.AppDataCollectorFactory;
 import it.polimi.modaclouds.monitoring.appleveldc.Config;
 import it.polimi.modaclouds.monitoring.appleveldc.ConfigurationException;
 import it.polimi.modaclouds.monitoring.appleveldc.Monitor;
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ServiceTime;
+import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiDCMetaData;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.DataCollector;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.MO;
+
+import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +67,8 @@ public class FakeServletExample {
 	private static void uploadDC() throws ConfigurationException,
 			URISyntaxException {
 		FusekiKBAPI kb = new FusekiKBAPI(Config.getKBURL());
-		kb.setURIBase(MO.URI);
-		kb.setURIPrefix(MO.prefix);
-		DataCollector dc = new DataCollector();
-		dc.addMonitoredResource("my-app-1-login");
+		FusekiDCMetaData dc = new FusekiDCMetaData();
+		dc.addMonitoredResourceId("my-app-1-login");
 		dc.setMonitoredMetric(ServiceTime.id);
 		logger.info("Adding data collector " + dc.toString() + " to the KB");
 		kb.add(dc);

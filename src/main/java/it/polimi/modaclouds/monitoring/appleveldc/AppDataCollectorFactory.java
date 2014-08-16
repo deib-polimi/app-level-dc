@@ -18,11 +18,11 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ServiceTime;
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
-import it.polimi.modaclouds.monitoring.dcfactory.connectors.DDAHandler;
-import it.polimi.modaclouds.monitoring.dcfactory.connectors.FusekiKBHandler;
-import it.polimi.modaclouds.monitoring.dcfactory.connectors.KBHandler;
-import it.polimi.modaclouds.monitoring.dcfactory.connectors.RspCsparqlServerDDAHandler;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.DataCollector;
+import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.RCSConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.DCMetaData;
+import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -62,8 +62,8 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 
 		loadConfiguration();
 
-		DDAHandler dda = new RspCsparqlServerDDAHandler(ddaURL);
-		KBHandler kb = new FusekiKBHandler(kbURL);
+		DDAConnector dda = new RCSConnector(ddaURL);
+		KBConnector kb = new FusekiConnector(kbURL);
 		_INSTANCE = new AppDataCollectorFactory(dda, kb);
 
 		parseMonitoredMethods(monitoredPackagePrefix);
@@ -110,7 +110,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		return _INSTANCE;
 	}
 
-	private AppDataCollectorFactory(DDAHandler dda, KBHandler kb) {
+	private AppDataCollectorFactory(DDAConnector dda, KBConnector kb) {
 		super(dda, kb);
 	}
 
@@ -125,9 +125,9 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	}
 
 	public void collect(String value, String metric, String monitoredResourceId) {
-		DataCollector dc = getDataCollector(monitoredResourceId, metric);
+		DCMetaData dc = getDataCollector(monitoredResourceId, metric);
 		if (dc != null) {
-			Map<String,String> parameters = getParameters(dc);
+			Map<String,String> parameters = dc.getParameters();
 			double samplingProbability = ServiceTime.getSamplingProbability(parameters);
 			if( Math.random() < samplingProbability )
 				sendAsyncMonitoringDatum(value, metric, monitoredResourceId);
