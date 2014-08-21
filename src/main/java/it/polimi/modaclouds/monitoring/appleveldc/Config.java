@@ -19,29 +19,69 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 import org.apache.commons.validator.routines.UrlValidator;
 
 public class Config {
-
-	public static String getDDAURL() throws ConfigurationException {
-		String ddaIP = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_IP);
-		String ddaPort = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT);
-		String ddaUrl = "http://" + ddaIP + ":" + ddaPort;
-		UrlValidator validator = new UrlValidator();
+	
+	private static Config _instance = null;
+	private UrlValidator validator;
+	private String ddaIP;
+	private String ddaPort;
+	private String kbIP;
+	private String kbPort;
+	private String kbPath;
+	private String ddaUrl;
+	private String kbUrl;
+	private int kbSyncPeriod;
+	private String appId;
+	
+	public static Config getInstance() throws ConfigurationException {
+		if (_instance == null)
+			_instance = new Config();
+		return _instance;
+	}
+	
+	private Config() throws ConfigurationException{
+		validator = new UrlValidator();
+		ddaIP = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_IP);
+		ddaPort = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT);
+		kbIP = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP);
+		kbPort = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT);
+		kbPath = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH);
+		String kbSyncPeriodString = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
+		appId = getMandatoryEnvVar(Env.MODACLOUDS_MONITORED_APP_ID);
+		
+		ddaUrl = "http://" + ddaIP + ":" + ddaPort;
+		kbUrl = "http://" + kbIP + ":" + kbPort + kbPath;
+		
 		if (!validator.isValid(ddaUrl))
 			throw new ConfigurationException(ddaUrl + " is not a valid URL");
-		return ddaUrl.toString();
-	}
-
-	public static String getKBURL() throws ConfigurationException {
-		String kbIP = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP);
-		String kbPort = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT);
-		String kbPath = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH);
-		String kbUrl = "http://" + kbIP + ":" + kbPort + kbPath;
-		UrlValidator validator = new UrlValidator();
 		if (!validator.isValid(kbUrl))
 			throw new ConfigurationException(kbUrl + " is not a valid URL");
-		return kbUrl.toString();
+		
+		try {
+			kbSyncPeriod = Integer.parseInt(kbSyncPeriodString);
+		} catch (NumberFormatException e) {
+			throw new ConfigurationException(kbSyncPeriodString
+					+ " is not a valid value for "
+					+ Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
+		}
 	}
 
-	private static String getMandatoryEnvVar(String varName)
+	public String getDdaUrl() {
+		return ddaUrl;
+	}
+
+	public String getKbUrl() {
+		return kbUrl;
+	}
+	
+	public int getKbSyncPeriod() {
+		return kbSyncPeriod;
+	}
+	
+	public String getAppId() {
+		return appId;
+	}
+
+	private String getMandatoryEnvVar(String varName)
 			throws ConfigurationException {
 		String var = System.getenv(varName);
 		if (var == null)
@@ -50,18 +90,9 @@ public class Config {
 		return var;
 	}
 
-	public static int getKBSyncPeriod() throws ConfigurationException {
-		String kbSyncPeriodString = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
-		try {
-			return Integer.parseInt(kbSyncPeriodString);
-		} catch (NumberFormatException e) {
-			throw new ConfigurationException(kbSyncPeriodString
-					+ " is not a valid value for "
-					+ Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
-		}
-	}
+	
 
-	private static String getOptionalEnvVar(String varName) {
+	private String getOptionalEnvVar(String varName) {
 		String var = System.getenv(varName);
 		if (var == null) {
 			var = getDefaultValue(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
@@ -69,7 +100,7 @@ public class Config {
 		return var;
 	}
 
-	private static String getDefaultValue(String varName) {
+	private String getDefaultValue(String varName) {
 		switch (varName) {
 		case Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD:
 			return "10";
@@ -78,7 +109,5 @@ public class Config {
 		}
 	}
 
-	public static String getAppId() throws ConfigurationException {
-		return getMandatoryEnvVar(Env.MODACLOUDS_MONITORED_APP_ID);
-	}
+	
 }

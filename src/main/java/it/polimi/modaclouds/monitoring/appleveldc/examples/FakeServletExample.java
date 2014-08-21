@@ -66,7 +66,7 @@ public class FakeServletExample {
 
 	private static void uploadDC() throws ConfigurationException,
 			URISyntaxException {
-		FusekiKBAPI kb = new FusekiKBAPI(Config.getKBURL());
+		FusekiKBAPI kb = new FusekiKBAPI(Config.getInstance().getKbUrl(),"it.polimi.modaclouds.monitoring.dcfactory.kbconnectors");
 		FusekiDCMetaData dc = new FusekiDCMetaData();
 		dc.addMonitoredResourceId("my-app-1-login");
 		dc.setMonitoredMetric(ServiceTime.id);

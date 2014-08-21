@@ -44,6 +44,8 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	private static String ddaURL;
 	private static String kbURL;
 
+	private static Config config;
+
 	/**
 	 * 
 	 * @param monitoredPackagePrefix
@@ -86,10 +88,11 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	}
 
 	private static void loadConfiguration() throws ConfigurationException {
-		ddaURL = Config.getDDAURL();
-		kbURL = Config.getKBURL();
-		kbSyncPeriod = Config.getKBSyncPeriod();
-		appId = Config.getAppId();
+		config = Config.getInstance();
+		ddaURL = config.getDdaUrl();
+		kbURL = config.getKbUrl();
+		kbSyncPeriod = config.getKbSyncPeriod();
+		appId = config.getAppId();
 	}
 
 	public void start() {
