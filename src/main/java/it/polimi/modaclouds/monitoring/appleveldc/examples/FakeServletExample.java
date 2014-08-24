@@ -18,13 +18,10 @@ package it.polimi.modaclouds.monitoring.appleveldc.examples;
 
 import it.polimi.modaclouds.monitoring.appleveldc.AppDataCollectorFactory;
 import it.polimi.modaclouds.monitoring.appleveldc.Config;
-import it.polimi.modaclouds.monitoring.appleveldc.ConfigurationException;
 import it.polimi.modaclouds.monitoring.appleveldc.Monitor;
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ServiceTime;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiDCMetaData;
+import it.polimi.modaclouds.monitoring.appleveldc.metrics.ExecutionTime;
+import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
-
-import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,7 @@ public class FakeServletExample {
 		try {
 			AppDataCollectorFactory.initialize(FakeServlet.class.getPackage()
 					.getName());
-			AppDataCollectorFactory.getInstance().start();
+			AppDataCollectorFactory.getInstance().startSyncingWithKB();;
 			new Thread(new Runnable() {
 
 				@Override
@@ -64,14 +61,13 @@ public class FakeServletExample {
 		}
 	}
 
-	private static void uploadDC() throws ConfigurationException,
-			URISyntaxException {
-		FusekiKBAPI kb = new FusekiKBAPI(Config.getInstance().getKbUrl(),"it.polimi.modaclouds.monitoring.dcfactory.kbconnectors");
-		FusekiDCMetaData dc = new FusekiDCMetaData();
+	private static void uploadDC() throws Exception {
+		FusekiKBAPI kb = new FusekiKBAPI(Config.getInstance().getKbUrl());
+		DCMetaData dc = new DCMetaData();
 		dc.addMonitoredResourceId("my-app-1-login");
-		dc.setMonitoredMetric(ServiceTime.id);
+		dc.setMonitoredMetric(ExecutionTime.id);
 		logger.info("Adding data collector " + dc.toString() + " to the KB");
-		kb.add(dc);
+		kb.add(dc, "id");
 	}
 
 	public static class FakeServlet {

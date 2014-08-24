@@ -16,11 +16,11 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ServiceTime;
+import it.polimi.modaclouds.monitoring.appleveldc.metrics.ExecutionTime;
+import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
 import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.RCSConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.DCMetaData;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 
@@ -95,10 +95,6 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		appId = config.getAppId();
 	}
 
-	public void start() {
-		startSyncingWithKB(kbSyncPeriod);
-		logger.info("{} started", AppDataCollectorFactory.class.getSimpleName());
-	}
 
 	public static boolean isInitialized() {
 		return _INSTANCE != null;
@@ -131,10 +127,15 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		DCMetaData dc = getDataCollector(monitoredResourceId, metric);
 		if (dc != null) {
 			Map<String,String> parameters = dc.getParameters();
-			double samplingProbability = ServiceTime.getSamplingProbability(parameters);
+			double samplingProbability = ExecutionTime.getSamplingProbability(parameters);
 			if( Math.random() < samplingProbability )
 				sendAsyncMonitoringDatum(value, metric, monitoredResourceId);
 		}
 	}
+
+	public void startSyncingWithKB() {
+		startSyncingWithKB(kbSyncPeriod);
+	}
+
 
 }

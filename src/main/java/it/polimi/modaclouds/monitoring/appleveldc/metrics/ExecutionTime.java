@@ -18,9 +18,9 @@ package it.polimi.modaclouds.monitoring.appleveldc.metrics;
 
 import java.util.Map;
 
-public class ServiceTime {
+public class ExecutionTime {
 
-	public static final String id = "ServiceTime";
+	public static final String id = "ExecutionTime";
 	
 	public enum Parameter {
 		samplingProbability ("1");

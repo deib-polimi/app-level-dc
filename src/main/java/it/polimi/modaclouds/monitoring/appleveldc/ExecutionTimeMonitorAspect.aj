@@ -16,7 +16,7 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ServiceTime;
+import it.polimi.modaclouds.monitoring.appleveldc.metrics.ExecutionTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +40,11 @@ public aspect ExecutionTimeMonitorAspect {
 		end = System.currentTimeMillis();
 		long elapsed = end - start;
 		logger.debug("Execution time:" + elapsed);
-		AppDataCollectorFactory.getInstance().collect(String.valueOf(elapsed),
-				ServiceTime.id,
-				AppDataCollectorFactory.getMethodId(methodType.name()));
+		if (AppDataCollectorFactory.getInstance() != null) {
+			AppDataCollectorFactory.getInstance().collect(
+					String.valueOf(elapsed), ExecutionTime.id,
+					AppDataCollectorFactory.getMethodId(methodType.name()));
+		}
 	}
 
 }
