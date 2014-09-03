@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.polimi.modaclouds.monitoring</groupId>
 	<artifactId>app-level-dc</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.3</version>
 
 	<inceptionYear>2014</inceptionYear>
 
@@ -87,7 +87,7 @@
 		<dependency>
 			<groupId>it.polimi.modaclouds.monitoring</groupId>
 			<artifactId>data-collector-factory</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>
@@ -129,7 +129,7 @@
 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
-				<version>0.9</version>
+				<version>0.10-SNAPSHOT</version>
 				<configuration>
 					<merge>true</merge> <!-- deploy without removing existing artifacts on the repo -->
 					<message>Maven artifacts for ${project.artifactId}
