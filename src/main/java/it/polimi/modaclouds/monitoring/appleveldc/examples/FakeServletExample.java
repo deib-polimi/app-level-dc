@@ -21,7 +21,7 @@ import it.polimi.modaclouds.monitoring.appleveldc.Config;
 import it.polimi.modaclouds.monitoring.appleveldc.Monitor;
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ExecutionTime;
 import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.DCVocabulary;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
 
 import org.slf4j.Logger;
@@ -68,7 +68,7 @@ public class FakeServletExample {
 		dc.addMonitoredResourceId("my-app-1-login");
 		dc.setMonitoredMetric(ExecutionTime.id);
 		logger.info("Adding data collector " + dc.toString() + " to the KB");
-		kb.add(dc, "id", FusekiConnector.DATA_COLLECTORS_GRAPH_NAME);
+		kb.add(dc, "id", DCVocabulary.DATA_COLLECTORS_GRAPH_NAME);
 	}
 
 	public static class FakeServlet {
