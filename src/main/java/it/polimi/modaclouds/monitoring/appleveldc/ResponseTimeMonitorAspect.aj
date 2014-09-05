@@ -16,15 +16,15 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ExecutionTime;
+import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public aspect ExecutionTimeMonitorAspect {
+public aspect ResponseTimeMonitorAspect {
 
 	private final Logger logger = LoggerFactory
-			.getLogger(ExecutionTimeMonitorAspect.class);
+			.getLogger(ResponseTimeMonitorAspect.class);
 
 	private long start;
 	private long end;
@@ -39,10 +39,10 @@ public aspect ExecutionTimeMonitorAspect {
 	after(Monitor methodType): monitoredMethod(methodType){
 		end = System.currentTimeMillis();
 		long elapsed = end - start;
-		logger.debug("Execution time:" + elapsed);
+		logger.debug("Response time:" + elapsed);
 		if (AppDataCollectorFactory.getInstance() != null) {
 			AppDataCollectorFactory.getInstance().collect(
-					String.valueOf(elapsed), ExecutionTime.id,
+					String.valueOf(elapsed), ResponseTime.id,
 					AppDataCollectorFactory.getMethodId(methodType.name()));
 		}
 	}

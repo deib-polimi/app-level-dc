@@ -16,7 +16,7 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ExecutionTime;
+import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
 import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
@@ -127,7 +127,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		DCMetaData dc = getDataCollector(monitoredResourceId, metric);
 		if (dc != null) {
 			Map<String,String> parameters = dc.getParameters();
-			double samplingProbability = ExecutionTime.getSamplingProbability(parameters);
+			double samplingProbability = ResponseTime.getSamplingProbability(parameters);
 			if( Math.random() < samplingProbability )
 				sendAsyncMonitoringDatum(value, metric, monitoredResourceId);
 		}
