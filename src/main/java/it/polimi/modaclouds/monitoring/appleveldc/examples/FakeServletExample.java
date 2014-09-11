@@ -17,16 +17,19 @@
 package it.polimi.modaclouds.monitoring.appleveldc.examples;
 
 import it.polimi.modaclouds.monitoring.appleveldc.AppDataCollectorFactory;
-import it.polimi.modaclouds.monitoring.appleveldc.Config;
 import it.polimi.modaclouds.monitoring.appleveldc.Monitor;
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
-import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
-import it.polimi.modaclouds.monitoring.dcfactory.DCVocabulary;
-import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Before launching the example, start the KB, the DDA and the MM. In order to
+ * see the result: register a rule with outputMetric action, and attach an
+ * observer to the metric.
+ * 
+ * @author miglie
+ * 
+ */
 public class FakeServletExample {
 
 	private static final Logger logger = LoggerFactory
@@ -53,22 +56,9 @@ public class FakeServletExample {
 				}
 			}).start();
 
-			Thread.sleep(5000);
-
-			uploadDC();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	private static void uploadDC() throws Exception {
-		FusekiKBAPI kb = new FusekiKBAPI(Config.getInstance().getKbUrl());
-		DCMetaData dc = new DCMetaData();
-		dc.addMonitoredResourceId("my-app-1-login");
-		dc.setMonitoredMetric(ResponseTime.id);
-		logger.info("Adding data collector " + dc.toString() + " to the KB");
-		kb.add(dc, "id", DCVocabulary.DATA_COLLECTORS_GRAPH_NAME);
 	}
 
 	public static class FakeServlet {
