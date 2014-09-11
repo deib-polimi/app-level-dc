@@ -16,23 +16,13 @@ Releases repository:
 </repositories>
 ```
 
-Snapshots repository:
-```xml
-<repositories>
-	<repository>
-        <id>deib-polimi-snapshots</id>
-        <url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/snapshots</url>
-	</repository>
-</repositories>
-```
-
 Dependency:
 ```xml
 <dependencies>
 	<dependency>
 		<groupId>it.polimi.modaclouds.monitoring</groupId>
 		<artifactId>app-level-dc</artifactId>
-		<version>0.2</version>
+		<version>0.3.3</version>
 	</dependency>
 </dependencies>
 ```
@@ -79,7 +69,3 @@ In short:
 
 KB and DDA must be running for the data collectors to be able to 
 retrieve their configuration from the KB and to be able to feed the DDA.
-
-In the FakeServleExample a new DC is installed in the KB after 5 seconds. This is just done
-for the purpose of the example, the monitoring manager will take care of installing data collectors
-on the KB in a normal scenario.
