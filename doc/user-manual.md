@@ -66,10 +66,9 @@ In short:
 - Annotate methods you want to monitor the ServiceTime, passing the name (type) of the monitored method
 - Have the data collector initialized at startup
 - Expose required environment variables (See class Env for the complete list of environment variables)
+as either system environment variable or system properties. If the same variable is defined twice,
+system property will have the priority. Environment variables will be retrieved by the library by means
+of System.getenv, while the system property by means of System.getProperty
 
 KB and DDA must be running for the data collectors to be able to 
 retrieve their configuration from the KB and to be able to feed the DDA.
-
-In the FakeServleExample a new DC is installed in the KB after 5 seconds. This is just done
-for the purpose of the example, the monitoring manager will take care of installing data collectors
-on the KB in a normal scenario.

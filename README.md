@@ -18,6 +18,10 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.3.4:
+* configuration can be done through system properties as well as
+environment variables now (system properties have priority)
+
 v0.3.3:
 
 * localhost is now allowed in configuration
