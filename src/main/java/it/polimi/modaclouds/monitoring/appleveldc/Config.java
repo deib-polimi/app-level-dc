@@ -19,7 +19,7 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 import org.apache.commons.validator.routines.UrlValidator;
 
 public class Config {
-	
+
 	private static Config _instance = null;
 	private UrlValidator validator;
 	private String ddaIP;
@@ -31,14 +31,14 @@ public class Config {
 	private String kbUrl;
 	private int kbSyncPeriod;
 	private String appId;
-	
+
 	public static Config getInstance() throws ConfigurationException {
 		if (_instance == null)
 			_instance = new Config();
 		return _instance;
 	}
-	
-	private Config() throws ConfigurationException{
+
+	private Config() throws ConfigurationException {
 		validator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 		ddaIP = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_IP);
 		ddaPort = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT);
@@ -47,15 +47,15 @@ public class Config {
 		kbPath = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH);
 		String kbSyncPeriodString = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
 		appId = getMandatoryEnvVar(Env.MODACLOUDS_MONITORED_APP_ID);
-		
+
 		ddaUrl = "http://" + ddaIP + ":" + ddaPort;
 		kbUrl = "http://" + kbIP + ":" + kbPort + kbPath;
-		
+
 		if (!validator.isValid(ddaUrl))
 			throw new ConfigurationException(ddaUrl + " is not a valid URL");
 		if (!validator.isValid(kbUrl))
 			throw new ConfigurationException(kbUrl + " is not a valid URL");
-		
+
 		try {
 			kbSyncPeriod = Integer.parseInt(kbSyncPeriodString);
 		} catch (NumberFormatException e) {
@@ -72,28 +72,33 @@ public class Config {
 	public String getKbUrl() {
 		return kbUrl;
 	}
-	
+
 	public int getKbSyncPeriod() {
 		return kbSyncPeriod;
 	}
-	
+
 	public String getAppId() {
 		return appId;
 	}
 
 	private String getMandatoryEnvVar(String varName)
 			throws ConfigurationException {
-		String var = System.getenv(varName);
-		if (var == null)
+		String var = System.getProperty(varName);
+		if (var == null) {
+			var = System.getenv(varName);
+		}
+		if (var == null) {
 			throw new ConfigurationException(varName
 					+ " variable was not defined");
+		}
 		return var;
 	}
 
-	
-
 	private String getOptionalEnvVar(String varName) {
-		String var = System.getenv(varName);
+		String var = System.getProperty(varName);
+		if (var == null) {
+			var = System.getenv(varName);
+		}
 		if (var == null) {
 			var = getDefaultValue(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
 		}
@@ -109,5 +114,4 @@ public class Config {
 		}
 	}
 
-	
 }

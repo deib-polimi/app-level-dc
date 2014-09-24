@@ -16,23 +16,13 @@ Releases repository:
 </repositories>
 ```
 
-Snapshots repository:
-```xml
-<repositories>
-	<repository>
-        <id>deib-polimi-snapshots</id>
-        <url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/snapshots</url>
-	</repository>
-</repositories>
-```
-
 Dependency:
 ```xml
 <dependencies>
 	<dependency>
 		<groupId>it.polimi.modaclouds.monitoring</groupId>
 		<artifactId>app-level-dc</artifactId>
-		<version>0.2</version>
+		<version>0.3.4</version>
 	</dependency>
 </dependencies>
 ```
