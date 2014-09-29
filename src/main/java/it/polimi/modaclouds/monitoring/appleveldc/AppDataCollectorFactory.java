@@ -69,6 +69,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		_INSTANCE = new AppDataCollectorFactory(dda, kb);
 
 		parseMonitoredMethods(monitoredPackagePrefix);
+		//TODO send these methods to the monitoring manager
 
 		logger.info(
 				"{} initialized with:\n\tddaURL: {}\n\tkbURL: {}\n\tkbSyncPeriod: {}",
