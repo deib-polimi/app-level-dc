@@ -25,6 +25,8 @@ import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -82,10 +84,14 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 				new MethodAnnotationsScanner());
 		Set<Method> methods = reflections
 				.getMethodsAnnotatedWith(Monitor.class);
+		
+		List <String> names = new ArrayList<String>();
 		for (Method m : methods) {
 			Monitor monitor = m.getAnnotation(Monitor.class);
 			_INSTANCE.addMonitoredResourceId(getMethodId(monitor.name()));
+			names.add(getMethodId(monitor.name())); 
 		}
+		
 	}
 
 	private static void loadConfiguration() throws ConfigurationException {
