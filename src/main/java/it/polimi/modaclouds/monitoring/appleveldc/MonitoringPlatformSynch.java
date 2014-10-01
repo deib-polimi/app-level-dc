@@ -8,15 +8,18 @@ public class MonitoringPlatformSynch {
 	
 
 	
-	public class SynchMethod{
+	public static class SynchMethod{
 		private String id;
 		
+		public SynchMethod(String id){
+			this.id = id;
+		}
 		public String getId(){
 			return id;
 		}
 	}
 
-	public static void sendMethods(List<SynchMethod> methods){
+	public static void sendMethods(List<SynchMethod> methods, String appId ){
 		Model update = new Model();
 		for (SynchMethod m : methods){
 			Method method = new Method();

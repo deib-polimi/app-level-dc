@@ -16,6 +16,7 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
+import it.polimi.modaclouds.monitoring.appleveldc.MonitoringPlatformSynch.SynchMethod;
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
@@ -71,7 +72,6 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		_INSTANCE = new AppDataCollectorFactory(dda, kb);
 
 		parseMonitoredMethods(monitoredPackagePrefix);
-		//TODO send these methods to the monitoring manager
 
 		logger.info(
 				"{} initialized with:\n\tddaURL: {}\n\tkbURL: {}\n\tkbSyncPeriod: {}",
@@ -85,12 +85,14 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		Set<Method> methods = reflections
 				.getMethodsAnnotatedWith(Monitor.class);
 		
-		List <String> names = new ArrayList<String>();
+		List <SynchMethod> toSend = new ArrayList<SynchMethod>();
 		for (Method m : methods) {
 			Monitor monitor = m.getAnnotation(Monitor.class);
 			_INSTANCE.addMonitoredResourceId(getMethodId(monitor.name()));
-			names.add(getMethodId(monitor.name())); 
+			toSend.add(new MonitoringPlatformSynch.SynchMethod(getMethodId(monitor.name()))); 
 		}
+		MonitoringPlatformSynch.sendMethods(toSend, appId);
+		
 		
 	}
 
