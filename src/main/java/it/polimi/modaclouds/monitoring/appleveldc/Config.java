@@ -29,8 +29,11 @@ public class Config {
 	private String kbPath;
 	private String ddaUrl;
 	private String kbUrl;
+	private String mmUrl;
 	private int kbSyncPeriod;
 	private String appId;
+	private String mmIP;
+	private String mmPort;
 
 	public static Config getInstance() throws ConfigurationException {
 		if (_instance == null)
@@ -47,9 +50,13 @@ public class Config {
 		kbPath = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH);
 		String kbSyncPeriodString = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
 		appId = getMandatoryEnvVar(Env.MODACLOUDS_MONITORED_APP_ID);
+		mmIP = getMandatoryEnvVar (Env.MODACLOUDS_MONITORING_MANAGER_ENDPOINT_IP);
+		mmPort = getMandatoryEnvVar (Env.MODACLOUDS_MONITORING_MANAGER_ENDPOINT_PORT);
+		
 
 		ddaUrl = "http://" + ddaIP + ":" + ddaPort;
 		kbUrl = "http://" + kbIP + ":" + kbPort + kbPath;
+		mmUrl = "http://" + mmIP + ":" + mmPort;
 
 		if (!validator.isValid(ddaUrl))
 			throw new ConfigurationException(ddaUrl + " is not a valid URL");
@@ -79,6 +86,10 @@ public class Config {
 
 	public String getAppId() {
 		return appId;
+	}
+	
+	public String getMmUrl(){
+		return mmUrl;
 	}
 
 	private String getMandatoryEnvVar(String varName)

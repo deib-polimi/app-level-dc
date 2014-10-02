@@ -16,7 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
-import it.polimi.modaclouds.monitoring.appleveldc.MonitoringPlatformSynch.SynchMethod;
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
@@ -27,6 +26,7 @@ import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +35,10 @@ import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.kevinsawicki.http.HttpRequest;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class AppDataCollectorFactory extends DataCollectorFactory {
 
@@ -84,13 +88,13 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 				new MethodAnnotationsScanner());
 		Set<Method> methods = reflections
 				.getMethodsAnnotatedWith(Monitor.class);
- 		List <SynchMethod> toSend = new ArrayList<SynchMethod>();
+ 		Set <it.polimi.modaclouds.qos_models.monitoring_ontology.Method> toSend = new HashSet<it.polimi.modaclouds.qos_models.monitoring_ontology.Method>();
 		for (Method m : methods) {
 			Monitor monitor = m.getAnnotation(Monitor.class);
 			_INSTANCE.addMonitoredResourceId(getMethodId(monitor.name()));
-			toSend.add(new MonitoringPlatformSynch.SynchMethod(getMethodId(monitor.name()))); 
+			toSend.add(new it.polimi.modaclouds.qos_models.monitoring_ontology.Method(appId, monitor.name())); 
 		}
-		MonitoringPlatformSynch.sendMethods(toSend, appId);
+		sendMethods(toSend);
 		
 		
 	}
@@ -144,6 +148,22 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	public void startSyncingWithKB() {
 		startSyncingWithKB(kbSyncPeriod);
 	}
+	
+	private static void sendMethods(Set<it.polimi.modaclouds.qos_models.monitoring_ontology.Method> methods){
+		Model update = new Model();
+		update.setMethods(methods);
+		Gson gson = new GsonBuilder().serializeNulls().create();
+		String json = gson.toJson(update);
+		int result;
+		do{
+			result = HttpRequest.get(config.getMmUrl(),true,appId).code();
+		}
+		while(result!=200);
+		do{
+			result = HttpRequest.put(config.getMmUrl()).send(json).code();
+		}
+		while(result!=200);
 
+		}
 
 }
