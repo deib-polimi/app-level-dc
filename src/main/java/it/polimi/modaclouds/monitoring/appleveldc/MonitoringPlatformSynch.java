@@ -4,6 +4,9 @@ import it.polimi.modaclouds.qos_models.monitoring_ontology.Method;
 
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class MonitoringPlatformSynch {
 	
 
@@ -26,6 +29,9 @@ public class MonitoringPlatformSynch {
 			method.setId(m.getId());
 			update.add(method);
 		}
-		//TODO send update
+		Gson gson = new GsonBuilder().serializeNulls().create();
+		String json = gson.toJson(update);
+		int result = HttpRequest.put(url).send(json).code();
 		}
+	
 }

@@ -84,8 +84,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 				new MethodAnnotationsScanner());
 		Set<Method> methods = reflections
 				.getMethodsAnnotatedWith(Monitor.class);
-		
-		List <SynchMethod> toSend = new ArrayList<SynchMethod>();
+ 		List <SynchMethod> toSend = new ArrayList<SynchMethod>();
 		for (Method m : methods) {
 			Monitor monitor = m.getAnnotation(Monitor.class);
 			_INSTANCE.addMonitoredResourceId(getMethodId(monitor.name()));
