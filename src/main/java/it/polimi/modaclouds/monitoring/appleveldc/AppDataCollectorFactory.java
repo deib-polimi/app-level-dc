@@ -156,7 +156,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		String json = gson.toJson(update);
 		int result;
 		do{
-			result = HttpRequest.get(config.getMmUrl(),true,appId).code();
+			result = HttpRequest.get(config.getMmUrl()+"/"+appId).code();
 		}
 		while(result!=200);
 		do{
