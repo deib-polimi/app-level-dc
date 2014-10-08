@@ -17,12 +17,10 @@
 package it.polimi.modaclouds.monitoring.appleveldc;
 
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
-import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
+import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
-import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.RCSConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -64,11 +62,11 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 
 		loadConfiguration();
 
-		DDAConnector dda = new RCSConnector(ddaURL);
-		KBConnector kb = new FusekiConnector(kbURL);
+		DDAConnector dda = new DDAConnector(ddaURL);
+		KBConnector kb = new KBConnector(kbURL);
 		_INSTANCE = new AppDataCollectorFactory(dda, kb);
 
-		parseMonitoredMethods(monitoredPackagePrefix);
+//		parseMonitoredMethods(monitoredPackagePrefix);
 
 		logger.info(
 				"{} initialized with:\n\tddaURL: {}\n\tkbURL: {}\n\tkbSyncPeriod: {}",
@@ -76,16 +74,16 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 				kbSyncPeriod);
 	}
 
-	private static void parseMonitoredMethods(String monitoredPackagePrefix) {
-		Reflections reflections = new Reflections(monitoredPackagePrefix,
-				new MethodAnnotationsScanner());
-		Set<Method> methods = reflections
-				.getMethodsAnnotatedWith(Monitor.class);
-		for (Method m : methods) {
-			Monitor monitor = m.getAnnotation(Monitor.class);
-			_INSTANCE.addMonitoredResourceId(getMethodId(monitor.name()));
-		}
-	}
+//	private static void parseMonitoredMethods(String monitoredPackagePrefix) {
+//		Reflections reflections = new Reflections(monitoredPackagePrefix,
+//				new MethodAnnotationsScanner());
+//		Set<Method> methods = reflections
+//				.getMethodsAnnotatedWith(Monitor.class);
+//		for (Method m : methods) {
+//			Monitor monitor = m.getAnnotation(Monitor.class);
+//			_INSTANCE.addMonitoredResourceId(getMethodId(monitor.name()));
+//		}
+//	}
 
 	private static void loadConfiguration() throws ConfigurationException {
 		config = Config.getInstance();
@@ -94,7 +92,6 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		kbSyncPeriod = config.getKbSyncPeriod();
 		appId = config.getAppId();
 	}
-
 
 	public static boolean isInitialized() {
 		return _INSTANCE != null;
@@ -124,18 +121,33 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	}
 
 	public void collect(String value, String metric, String monitoredResourceId) {
-		DCMetaData dc = getDataCollector(monitoredResourceId, metric);
-		if (dc != null) {
-			Map<String,String> parameters = dc.getParameters();
-			double samplingProbability = ResponseTime.getSamplingProbability(parameters);
-			if( Math.random() < samplingProbability )
+		Set<DCConfig> dcs = getConfiguration(monitoredResourceId, metric);
+		if (dcs != null && !dcs.isEmpty()) {
+			DCConfig dc = selectDC(dcs);
+			Map<String, String> parameters = dc.getParameters();
+			double samplingProbability = ResponseTime
+					.getSamplingProbability(parameters);
+			if (Math.random() < samplingProbability)
 				sendAsyncMonitoringDatum(value, metric, monitoredResourceId);
 		}
+	}
+
+	private DCConfig selectDC(Set<DCConfig> dcs) {
+		DCConfig chosen = null;
+		double biggerSP = 0;
+		for (DCConfig dcConfig : dcs) {
+			double samplingProbability = ResponseTime
+					.getSamplingProbability(dcConfig.getParameters());
+			if (samplingProbability > biggerSP) {
+				chosen = dcConfig;
+				biggerSP = samplingProbability;
+			}
+		}
+		return chosen;
 	}
 
 	public void startSyncingWithKB() {
 		startSyncingWithKB(kbSyncPeriod);
 	}
-
 
 }
