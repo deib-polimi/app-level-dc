@@ -23,6 +23,7 @@ import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.RCSConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
+import it.polimi.modaclouds.qos_models.util.Model;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -50,6 +51,8 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	private static String appId;
 	private static String ddaURL;
 	private static String kbURL;
+	private static String mmURL;
+	private static String mmPort;
 
 	private static Config config;
 
@@ -105,6 +108,8 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		kbURL = config.getKbUrl();
 		kbSyncPeriod = config.getKbSyncPeriod();
 		appId = config.getAppId();
+		mmURL = config.getMmUrl();
+		mmPort = config.getMmPort();	
 	}
 
 
@@ -156,13 +161,17 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		String json = gson.toJson(update);
 		int result;
 		do{
-			result = HttpRequest.get(config.getMmUrl()+"/"+appId).code();
+			result = HttpRequest.get(mmURL+":"+mmPort+"/"+appId).code();
+			try {
+				Thread.sleep(120000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		}
 		while(result!=200);
-		do{
-			result = HttpRequest.put(config.getMmUrl()).send(json).code();
-		}
-		while(result!=200);
+
+		result = HttpRequest.put(config.getMmUrl()).send(json).code();
+		
 
 		}
 

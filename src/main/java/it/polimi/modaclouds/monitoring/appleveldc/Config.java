@@ -91,6 +91,10 @@ public class Config {
 	public String getMmUrl(){
 		return mmUrl;
 	}
+	
+	public String getMmPort() {
+		return mmPort;
+	}
 
 	private String getMandatoryEnvVar(String varName)
 			throws ConfigurationException {
