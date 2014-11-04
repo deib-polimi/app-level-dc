@@ -161,7 +161,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		String json = gson.toJson(update);
 		int result;
 		do{
-			result = HttpRequest.get(mmURL+":"+mmPort+"/"+appId).code();
+			result = HttpRequest.get(mmURL+"/"+appId).code();
 			try {
 				Thread.sleep(120000);
 			} catch (InterruptedException e1) {
@@ -170,7 +170,9 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		}
 		while(result!=200);
 
+		
 		result = HttpRequest.put(config.getMmUrl()).send(json).code();
+		
 		
 
 		}
