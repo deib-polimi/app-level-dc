@@ -186,6 +186,8 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		int result;
 		do{
 			result = HttpRequest.get(mmURL+"/v1/model/resources/"+appId).code();
+			logger.info("Connecting to "+mmURL,AppDataCollectorFactory.class.getSimpleName());
+			logger.info("result get http request: "+ result + " "+ appId, AppDataCollectorFactory.class.getSimpleName());
 			try {
 				Thread.sleep(120000);
 			} catch (InterruptedException e1) {
@@ -193,10 +195,9 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 			}
 		}
 		while(result!=200);
-		
-		result = HttpRequest.put(config.getMmUrl()).send(json).code();
-		
+		logger.info("Sending: "+json);
+		result = HttpRequest.post(mmURL+"/v1/model/resources").send(json).code();
+		logger.info("result post request "+result );
 		}
-
 
 }
