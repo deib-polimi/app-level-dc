@@ -26,9 +26,7 @@ import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 import it.polimi.modaclouds.qos_models.util.Model;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,7 +50,6 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	private static String ddaURL;
 	private static String kbURL;
 	private static String mmURL;
-	private static String mmPort;
 
 	private static Config config;
 
@@ -78,7 +75,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		KBConnector kb = new FusekiConnector(kbURL);
 		_INSTANCE = new AppDataCollectorFactory(dda, kb);
 
-		parseMonitoredMethods(monitoredPackagePrefix);
+		retrieveMonitoredMethods(monitoredPackagePrefix);
 
 		logger.info(
 				"{} initialized with:\n\tddaURL: {}\n\tkbURL: {}\n\tkbSyncPeriod: {}",
@@ -86,7 +83,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 				kbSyncPeriod);
 	}
 
-	private static void parseMonitoredMethods(String monitoredPackagePrefix) {
+	private static void retrieveMonitoredMethods(String monitoredPackagePrefix) {
 		Reflections reflections = new Reflections(monitoredPackagePrefix,
 				new MethodAnnotationsScanner());
 		Set<Method> methods = reflections
@@ -94,7 +91,6 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
  		Set <it.polimi.modaclouds.qos_models.monitoring_ontology.Method> toSend = new HashSet<it.polimi.modaclouds.qos_models.monitoring_ontology.Method>();
 		for (Method m : methods) {
 			Monitor monitor = m.getAnnotation(Monitor.class);
-			_INSTANCE.addMonitoredResourceId(getMethodId(monitor.name()));
 			toSend.add(new it.polimi.modaclouds.qos_models.monitoring_ontology.Method(appId, monitor.name())); 
 		}
 		sendMethods(toSend);
@@ -108,8 +104,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		kbURL = config.getKbUrl();
 		kbSyncPeriod = config.getKbSyncPeriod();
 		appId = config.getAppId();
-		mmURL = config.getMmUrl();
-		mmPort = config.getMmPort();	
+		mmURL = config.getMmUrl();	
 	}
 
 
@@ -161,7 +156,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		String json = gson.toJson(update);
 		int result;
 		do{
-			result = HttpRequest.get(mmURL+"/"+appId).code();
+			result = HttpRequest.get(mmURL+"/v1/model/resources/"+appId).code();
 			try {
 				Thread.sleep(120000);
 			} catch (InterruptedException e1) {
@@ -169,12 +164,9 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 			}
 		}
 		while(result!=200);
-
 		
 		result = HttpRequest.put(config.getMmUrl()).send(json).code();
 		
-		
-
 		}
 
 }
