@@ -118,7 +118,7 @@
 		        <dependency>
             <groupId>it.polimi.modaclouds.qos-models</groupId>
             <artifactId>qos-models</artifactId>
-            <version>2.2-SNAPSHOT-methods</version>
+            <version>2.2-SNAPSHOT</version>
         </dependency>
 		
 	</dependencies>
