@@ -18,6 +18,9 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.4:
+* updated to data-collector-factory 0.3
+
 v0.3.4:
 * configuration can be done through system properties as well as
 environment variables now (system properties have priority)
