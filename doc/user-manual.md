@@ -63,7 +63,7 @@ Then you need to include in your build life cycle the aspectj plugin:
 Have a look at the examples in the examples package for understanding how to use the library.
 
 In short:
-- Annotate methods you want to monitor the ServiceTime, passing the name (type) of the monitored method
+- Annotate methods you want to monitor the ResponseTime, passing the name (type) of the monitored method
 - Have the data collector initialized at startup
 - Expose required environment variables (See class Env for the complete list of environment variables)
 as either system environment variable or system properties. If the same variable is defined twice,
