@@ -63,14 +63,14 @@ public class FakeServletExample {
 
 	public static class FakeServlet {
 
-		@Monitor(name = "login")
+		@Monitor(name = "register")
 		public void login() {
-			logger.info("logging in...");
+			logger.info("registering...");
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 			}
-			logger.info("logged in!");
+			logger.info("registered!");
 		}
 
 	}
