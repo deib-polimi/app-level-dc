@@ -19,17 +19,10 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.EffectiveResponseTime;
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public aspect MonitorAspect {
-
-	private static Map<Long, Long> startTimes = new ConcurrentHashMap<Long, Long>();
-	static Map<Long, Long> externalStartTimes = new ConcurrentHashMap<Long, Long>();
-	static Map<Long, Long> externalTimes = new ConcurrentHashMap<Long, Long>();
 
 	private final Logger logger = LoggerFactory.getLogger(MonitorAspect.class);
 
@@ -37,15 +30,15 @@ public aspect MonitorAspect {
 
 	before(Monitor methodType) : monitoredMethod(methodType) {
 		logger.debug("Executing monitored method \"{}\"", methodType.type());
-		startTimes.put(Thread.currentThread().getId(),
+		AppDataCollectorFactory.startTimes.put(Thread.currentThread().getId(),
 				System.currentTimeMillis());
 	}
 
 	after(Monitor methodType): monitoredMethod(methodType){
 		long end = System.currentTimeMillis();
 		long responseTime = end
-				- startTimes.remove(Thread.currentThread().getId());
-		Long externalTime = externalTimes
+				- AppDataCollectorFactory.startTimes.remove(Thread.currentThread().getId());
+		Long externalTime = AppDataCollectorFactory.externalTimes
 				.remove(Thread.currentThread().getId());
 		long effectiveResponseTime = responseTime
 				- (externalTime != null ? externalTime : 0);

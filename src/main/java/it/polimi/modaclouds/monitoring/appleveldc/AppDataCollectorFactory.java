@@ -22,12 +22,19 @@ import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
 import it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AppDataCollectorFactory extends DataCollectorFactory {
+
+	// TODO these should be metric specific
+	static Map<Long, Long> startTimes;
+	static Map<Long, Long> externalStartTimes;
+	static Map<Long, Long> externalTimes;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(AppDataCollectorFactory.class);
@@ -48,6 +55,9 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		logger.info("Initializing {}",
 				AppDataCollectorFactory.class.getSimpleName());
 
+		startTimes = new ConcurrentHashMap<Long, Long>();
+		externalStartTimes = new ConcurrentHashMap<Long, Long>();
+		externalTimes = new ConcurrentHashMap<Long, Long>();
 		try {
 			config = Config.getInstance();
 			ddaURL = config.getDdaUrl();
@@ -120,13 +130,13 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 //	}
 
 	public static void startsExternalCall() {
-		Long externalCallStartTime = MonitorAspect.externalStartTimes
+		Long externalCallStartTime = externalStartTimes
 				.get(Thread.currentThread().getId());
 		if (externalCallStartTime != null) {
 			logger.error("Declaring the beginning of an external call inside a "
 					+ "declared external call. Effective Response Time may be inaccurate");
 		} else {
-			MonitorAspect.externalStartTimes.put(
+			externalStartTimes.put(
 					Thread.currentThread().getId(), System.currentTimeMillis());
 		}
 	}
@@ -134,15 +144,15 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	public static void endsExternalCall() {
 		Long time = System.currentTimeMillis();
 		Long threadId = Thread.currentThread().getId();
-		Long externalCallStartTime = MonitorAspect.externalStartTimes
+		Long externalCallStartTime = externalStartTimes
 				.remove(threadId);
 		if (externalCallStartTime == null) {
 			logger.error("Declaring the end of an external call outside the scope of an external call."
 					+ " Effective Response Time may be inaccurate");
 		} else {
-			Long currentExternalTime = MonitorAspect.externalTimes
+			Long currentExternalTime = externalTimes
 					.get(threadId);
-			MonitorAspect.externalTimes.put(threadId,
+			externalTimes.put(threadId,
 					currentExternalTime != null ? currentExternalTime + time
 							- externalCallStartTime : time
 							- externalCallStartTime);
