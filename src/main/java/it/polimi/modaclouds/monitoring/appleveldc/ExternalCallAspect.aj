@@ -16,15 +16,24 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Monitor {
+public aspect ExternalCallAspect {
 
-	String type();
+	private final Logger logger = LoggerFactory
+			.getLogger(ExternalCallAspect.class);
+
+	private pointcut monitoredMethod(ExternalCall methodType) : execution(@ExternalCall * *(..)) && @annotation(methodType);
+
+	before(ExternalCall methodType) : monitoredMethod(methodType) {
+		logger.debug("Starting external call");
+		AppDataCollectorFactory.startsExternalCall();
+	}
+
+	after(ExternalCall methodType): monitoredMethod(methodType){
+		logger.debug("Ending external call");
+		AppDataCollectorFactory.endsExternalCall();
+	}
 
 }

@@ -21,7 +21,7 @@ import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
 import java.util.Map;
 import java.util.Set;
 
-public class ResponseTime extends Metric {
+public class EffectiveResponseTime extends Metric {
 	
 	public enum Parameter {
 		samplingProbability ("1");
@@ -33,13 +33,14 @@ public class ResponseTime extends Metric {
 		}
 	}	
 
-	private static double getSamplingProbability(Map<String, String> parameters) {
+	public static double getSamplingProbability(Map<String, String> parameters) {
 		String samplingProbability = parameters.get(Parameter.samplingProbability.name());
 		if (samplingProbability == null)
 			samplingProbability = Parameter.samplingProbability.defaultValue;
 		return Double.valueOf(samplingProbability);
 	}
 
+	@Override
 	public DCConfig selectDC(Set<DCConfig> dcs) {
 		DCConfig chosen = null;
 		double biggerSP = 0;
@@ -52,7 +53,7 @@ public class ResponseTime extends Metric {
 		}
 		return chosen;
 	}
-
+	
 	@Override
 	public boolean shouldSend(DCConfig dc) {
 		Map<String, String> parameters = dc.getParameters();

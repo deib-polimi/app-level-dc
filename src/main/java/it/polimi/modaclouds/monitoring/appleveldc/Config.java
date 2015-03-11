@@ -38,6 +38,10 @@ public class Config {
 		return _instance;
 	}
 
+	public static void setInstance(Config config){
+		_instance = config;
+	}
+	
 	private Config() throws ConfigurationException {
 		validator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 		ddaIP = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_IP);

@@ -18,8 +18,12 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.5:
+* EffectiveResponseTime added as new metric
+* API changed, check the doc
+
 v0.4.1:
-* updated to [data-collector-factory 0.3.1](https://github.com/deib-polimi/modaclouds-data-collector-factory/releases/tag/v0.3)
+* updated to [data-collector-factory 0.3.1](https://github.com/deib-polimi/modaclouds-data-collector-factory/releases/tag/v0.3.1)
 
 v0.4:
 * updated to [data-collector-factory 0.3](https://github.com/deib-polimi/modaclouds-data-collector-factory/releases/tag/v0.3)

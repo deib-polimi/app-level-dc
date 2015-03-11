@@ -22,7 +22,7 @@ Dependency:
 	<dependency>
 		<groupId>it.polimi.modaclouds.monitoring</groupId>
 		<artifactId>app-level-dc</artifactId>
-		<version>0.3.4</version>
+		<version>VERSION</version>
 	</dependency>
 </dependencies>
 ```
@@ -63,12 +63,35 @@ Then you need to include in your build life cycle the aspectj plugin:
 Have a look at the examples in the examples package for understanding how to use the library.
 
 In short:
-- Annotate methods you want to monitor the ResponseTime, passing the name (type) of the monitored method
-- Have the data collector initialized at startup
-- Expose required environment variables (See class Env for the complete list of environment variables)
-as either system environment variable or system properties. If the same variable is defined twice,
-system property will have the priority. Environment variables will be retrieved by the library by means
-of System.getenv, while the system property by means of System.getProperty
-
+- Annotate methods you want to monitor, passing the [Resource Type](https://github.com/deib-polimi/modaclouds-qos-models/blob/master/doc/user-manual.md#the-monitoring-ontology) of the monitored method
+	```java
+	@Monitor(type = "register")
+	private void register() {
+		//...
+	}
+	```
+- Annotate methods that perform external calls. The processing time of such methods will be excluded by the EffectiveResponseTime.
+	```java
+	@ExternalCall
+	private void outgoingCall() {
+		// write to DB
+	}
+	```
+- Alternatively, the scope of outgoing calls can be delimited programmatically:
+	```java
+	private void register() {
+		AppDataCollectorFactory.startsExternalCall();
+		// write to DB
+		AppDataCollectorFactory.endsExternalCall();
+	}
+	```
+- In order for the data collector to work properly the following configuration must be set either through environement variables or through system properties (System properties have priority if a variable is specified in both ways):
+	* MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP
+	* MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT
+	* MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH
+	* MODACLOUDS_MONITORING_DDA_ENDPOINT_IP
+	* MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT
+	* MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD
+	* MODACLOUDS_MONITORED_APP_ID
 KB and DDA must be running for the data collectors to be able to 
 retrieve their configuration from the KB and to be able to feed the DDA.

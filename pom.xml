@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.polimi.modaclouds.monitoring</groupId>
 	<artifactId>app-level-dc</artifactId>
-	<version>0.4.1</version>
+	<version>0.5</version>
 
 	<inceptionYear>2014</inceptionYear>
 
@@ -68,15 +68,22 @@
 	</repositories>
 
 	<dependencies>
-		<!-- <dependency>
+		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.1.2</version>
-		</dependency> -->
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.8.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -87,7 +94,7 @@
 		<dependency>
 			<groupId>it.polimi.modaclouds.monitoring</groupId>
 			<artifactId>data-collector-factory</artifactId>
-			<version>0.3.1</version>
+			<version>0.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>
@@ -129,7 +136,7 @@
 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
-				<version>0.10</version>
+				<version>0.11</version>
 				<configuration>
 					<merge>true</merge> <!-- deploy without removing existing artifacts on the repo -->
 					<message>Maven artifacts for ${project.artifactId}
@@ -179,7 +186,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-scm-publish-plugin</artifactId>
-				<version>1.0-beta-2</version>
+				<version>1.1</version>
 				<configuration>
 					<checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
 					<checkinComment>Publishing javadoc for
