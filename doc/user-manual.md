@@ -2,6 +2,13 @@
 
 # User Manual
 
+## Provided Metrics
+
+|Metric Name|Required Parameters|Description|
+|-----------|-------------------|-----------|
+|ResponseTime|<ul><li>samplingProbability</li></ul>|Whenever a monitored method is called, the response time for such method is collected and sent with the given probability|
+|EffectiveResponseTime|<ul><li>samplingProbability</li></ul>|Like response time, but external calls are excluded|
+
 ## Usage
 
 In order to use the library you should first add our library as a dependency in your maven project:
