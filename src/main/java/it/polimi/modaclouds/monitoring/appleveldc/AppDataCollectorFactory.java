@@ -78,20 +78,34 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		}
 	}
 
+	/**
+	 * Start the synchronization with the KB. Nothing will happen if it was already started.
+	 */
 	public static void startSyncingWithKB() {
 		_INSTANCE.startSyncingWithKB(kbSyncPeriod);
 	}
-
+	
+	/**
+	 * Delimit the starting of an external call programmatically
+	 */
 	public static void startsExternalCall() {
 		logger.debug("Starting external call");
 		Metric.notifyAllExternalMethodStarts();
 	}
 
+	/**
+	 * Delimit the ending of an external call programmatically
+	 */
 	public static void endsExternalCall() {
 		logger.debug("Ending external call");
 		Metric.notifyAllExternalMethodEnds();
 	}
 
+	/**
+	 * Initialize the data collector
+	 * 
+	 * @throws ConfigurationException
+	 */
 	public static void init() throws ConfigurationException {
 		if (!initialized) {
 			logger.info("Initializing {}",

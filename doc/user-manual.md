@@ -110,6 +110,11 @@ In short:
 	```java
 	AppDataCollectorFactory.startSyncingWithKB();
 	```
+- The data collector is automatically initialized as soon as the first monitored method is called. Configuration errors will be logged but won't raise any exception during automatic initialization. In order to check the correctness of the configuration and to avoid the initialization time to compromise the first collected datum it is suggested to initialize it manually at startup as follows:
+
+	```java
+	AppDataCollectorFactory.init();
+	```
 
 KB and DDA must be running for the data collectors to be able to 
 retrieve their configuration from the KB and to be able to feed the DDA.
