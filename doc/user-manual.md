@@ -64,6 +64,7 @@ Have a look at the examples in the examples package for understanding how to use
 
 In short:
 - Annotate methods you want to monitor, passing the [Resource Type](https://github.com/deib-polimi/modaclouds-qos-models/blob/master/doc/user-manual.md#the-monitoring-ontology) of the monitored method
+
 	```java
 	@Monitor(type = "register")
 	private void register() {
@@ -71,6 +72,7 @@ In short:
 	}
 	```
 - Annotate methods that perform external calls. The processing time of such methods will be excluded by the EffectiveResponseTime.
+
 	```java
 	@ExternalCall
 	private void outgoingCall() {
@@ -78,6 +80,7 @@ In short:
 	}
 	```
 - Alternatively, the scope of outgoing calls can be delimited programmatically:
+
 	```java
 	private void register() {
 		AppDataCollectorFactory.startsExternalCall();
@@ -93,5 +96,6 @@ In short:
 	* MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT
 	* MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD
 	* MODACLOUDS_MONITORED_APP_ID
+
 KB and DDA must be running for the data collectors to be able to 
 retrieve their configuration from the KB and to be able to feed the DDA.
