@@ -4,10 +4,10 @@
 
 ## Provided Metrics
 
-|Metric Name|Required Parameters|Description|
-|-----------|-------------------|-----------|
-|ResponseTime|<ul><li>samplingProbability</li></ul>|Whenever a monitored method is called, the response time for such method is collected and sent with the given probability|
-|EffectiveResponseTime|<ul><li>samplingProbability</li></ul>|Like response time, but external calls are excluded|
+|Metric Name|Target Class|Required Parameters|Description|
+|-----------|------------|-------------------|-----------|
+|ResponseTime|Method|<ul><li>samplingProbability</li></ul>|Whenever a monitored method is called, the response time for such method is collected and sent with the given probability|
+|EffectiveResponseTime|Method|<ul><li>samplingProbability</li></ul>|Like response time, but external calls are excluded|
 
 ## Usage
 
