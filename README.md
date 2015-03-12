@@ -18,6 +18,9 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.5.2:
+* Synchronization with KB can be started manually, see the doc
+
 v0.5.1:
 * Fixed a problem that prevented methods called by monitored methods to be monitored 
 

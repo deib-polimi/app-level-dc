@@ -29,7 +29,7 @@ public class Config {
 	private String kbPath;
 	private String ddaUrl;
 	private String kbUrl;
-	private int kbSyncPeriod;
+	private int kbSyncPeriod = 10;
 	private String appId;
 	private boolean startSyncingWithKB = true;
 
@@ -39,10 +39,10 @@ public class Config {
 		return _instance;
 	}
 
-	public static void setInstance(Config config){
+	public static void setInstance(Config config) {
 		_instance = config;
 	}
-	
+
 	private Config() throws ConfigurationException {
 		validator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 		ddaIP = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_IP);
@@ -50,7 +50,12 @@ public class Config {
 		kbIP = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP);
 		kbPort = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT);
 		kbPath = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH);
-		String kbSyncPeriodString = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
+		String kbSyncPeriodString = getOptionalEnvVar(
+				Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD,
+				Integer.toString(kbSyncPeriod));
+		String startSyncingWithKBString = getOptionalEnvVar(
+				Env.MODACLOUDS_START_SYNC_WITH_KB,
+				Boolean.toString(startSyncingWithKB));
 		appId = getMandatoryEnvVar(Env.MODACLOUDS_MONITORED_APP_ID);
 
 		ddaUrl = "http://" + ddaIP + ":" + ddaPort;
@@ -63,6 +68,7 @@ public class Config {
 
 		try {
 			kbSyncPeriod = Integer.parseInt(kbSyncPeriodString);
+			startSyncingWithKB = Boolean.getBoolean(startSyncingWithKBString);
 		} catch (NumberFormatException e) {
 			throw new ConfigurationException(kbSyncPeriodString
 					+ " is not a valid value for "
@@ -99,30 +105,21 @@ public class Config {
 		return var;
 	}
 
-	private String getOptionalEnvVar(String varName) {
+	private String getOptionalEnvVar(String varName, String defaultValue) {
 		String var = System.getProperty(varName);
 		if (var == null) {
 			var = System.getenv(varName);
 		}
 		if (var == null) {
-			var = getDefaultValue(Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD);
+			var = defaultValue;
 		}
 		return var;
 	}
 
-	private String getDefaultValue(String varName) {
-		switch (varName) {
-		case Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD:
-			return "10";
-		default:
-			return "";
-		}
+	public boolean isStartSyncingWithKB() {
+		return startSyncingWithKB;
 	}
 
-	public boolean isStartSyncingWithKB() {
-		return startSyncingWithKB ; 
-	}
-	
 	public void setStartSyncingWithKB(boolean startSyncingWithKB) {
 		this.startSyncingWithKB = startSyncingWithKB;
 	}
