@@ -91,14 +91,14 @@ In short:
 - In order for the data collector to work properly the following configuration must be set either through environement variables or through system properties (System properties have priority if a variable is specified in both ways):
 	* `MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP`
 	* `MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT`
-	* `MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH`
 	* `MODACLOUDS_MONITORING_DDA_ENDPOINT_IP`
 	* `MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT`
 	* `MODACLOUDS_MONITORED_APP_ID`
+	* `MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH` (optional, default: "/modaclouds/kb")
 	* `MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD` (optional, default: 10)
 	* `MODACLOUDS_START_SYNC_WITH_KB` (optional, default: true)
 
-- if `MODACLOUDS_START_SYNC_WITH_KB` is set to false, KB synchronization won't start automatically, and it can be started manually as follows:
+- If `MODACLOUDS_START_SYNC_WITH_KB` is set to false, KB synchronization won't start automatically. It can be started manually as follows:
 
 	```java
 	AppDataCollectorFactory.startSyncingWithKB();

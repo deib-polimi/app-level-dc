@@ -18,15 +18,17 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class ResponseTimeTest {
 
 	@Before
-	public void setUp() {
+	public void setUp() throws ConfigurationException {
 		Config config = mock(Config.class);
 		Config.setInstance(config);
 		when(config.getAppId()).thenReturn("whatever");
@@ -34,14 +36,12 @@ public class ResponseTimeTest {
 		when(config.getKbUrl()).thenReturn("http://localhost:3030");
 		when(config.isStartSyncingWithKB()).thenReturn(false);
 		when(config.getKbSyncPeriod()).thenReturn(10);
+		AppDataCollectorFactory.init();
 	}
 
 	@Test
 	public void test() throws Exception {
 		register();
-		assertTrue(AppDataCollectorFactory.externalStartTimes.isEmpty());
-		assertTrue(AppDataCollectorFactory.startTimesPerMethodPerThreadId.isEmpty());
-		assertTrue(AppDataCollectorFactory.externalTimes.isEmpty());
 	}
 
 	@Monitor(type = "register")
@@ -53,8 +53,8 @@ public class ResponseTimeTest {
 		AppDataCollectorFactory.endsExternalCall();
 	}
 
-	@ExternalCall
 	@Monitor(type = "outgoingCall")
+	@ExternalCall
 	private void outgoingCall() throws InterruptedException {
 		Thread.sleep(1000);
 	}

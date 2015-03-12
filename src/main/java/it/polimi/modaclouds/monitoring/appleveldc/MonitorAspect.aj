@@ -16,12 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.EffectiveResponseTime;
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +26,10 @@ public aspect MonitorAspect {
 	private pointcut monitoredMethod(Monitor methodType) : execution(@Monitor * *(..)) && @annotation(methodType);
 
 	before(Monitor methodType) : monitoredMethod(methodType) {
-		logger.debug("Executing monitored method \"{}\"", methodType.type());
+		logger.debug("Starting method: {}", methodType.type());
+		Metric.notifyAllMethodStarts(methodType.type());
+		
+		/*
 		Long threadId = Thread.currentThread().getId();
 		Map<String, Long> startTimePerMethod = AppDataCollectorFactory.startTimesPerMethodPerThreadId
 				.get(threadId);
@@ -42,9 +39,14 @@ public aspect MonitorAspect {
 					threadId, startTimePerMethod);
 		}
 		startTimePerMethod.put(methodType.type(), System.currentTimeMillis());
+		*/
 	}
 
 	after(Monitor methodType): monitoredMethod(methodType){
+		logger.debug("Ending method: {}", methodType.type());
+		Metric.notifyAllMethodEnds(methodType.type());
+		
+		/*
 		long end = System.currentTimeMillis();
 		Long threadId = Thread.currentThread().getId();
 		long responseTime = end
@@ -72,6 +74,7 @@ public aspect MonitorAspect {
 		AppDataCollectorFactory.collect(String.valueOf(effectiveResponseTime),
 				new EffectiveResponseTime(),
 				AppDataCollectorFactory.getMethodId(methodType.type()));
+				*/
 	}
 
 }

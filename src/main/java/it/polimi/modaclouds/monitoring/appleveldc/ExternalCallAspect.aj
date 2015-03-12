@@ -28,12 +28,12 @@ public aspect ExternalCallAspect {
 
 	before(ExternalCall methodType) : monitoredMethod(methodType) {
 		logger.debug("Starting external call");
-		AppDataCollectorFactory.startsExternalCall();
+		Metric.notifyAllExternalMethodStarts();
 	}
 
 	after(ExternalCall methodType): monitoredMethod(methodType){
 		logger.debug("Ending external call");
-		AppDataCollectorFactory.endsExternalCall();
+		Metric.notifyAllExternalMethodEnds();
 	}
 
 }

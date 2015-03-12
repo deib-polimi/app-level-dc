@@ -26,7 +26,7 @@ public class Config {
 	private String ddaPort;
 	private String kbIP;
 	private String kbPort;
-	private String kbPath;
+	private String kbPath = "/modaclouds/kb";
 	private String ddaUrl;
 	private String kbUrl;
 	private int kbSyncPeriod = 10;
@@ -49,7 +49,7 @@ public class Config {
 		ddaPort = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT);
 		kbIP = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP);
 		kbPort = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT);
-		kbPath = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH);
+		kbPath = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH,kbPath);
 		String kbSyncPeriodString = getOptionalEnvVar(
 				Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD,
 				Integer.toString(kbSyncPeriod));
