@@ -31,6 +31,7 @@ public class Config {
 	private String kbUrl;
 	private int kbSyncPeriod;
 	private String appId;
+	private boolean startSyncingWithKB = true;
 
 	public static Config getInstance() throws ConfigurationException {
 		if (_instance == null)
@@ -116,6 +117,14 @@ public class Config {
 		default:
 			return "";
 		}
+	}
+
+	public boolean isStartSyncingWithKB() {
+		return startSyncingWithKB ; 
+	}
+	
+	public void setStartSyncingWithKB(boolean startSyncingWithKB) {
+		this.startSyncingWithKB = startSyncingWithKB;
 	}
 
 }

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class AppDataCollectorFactory extends DataCollectorFactory {
 
 	// TODO these should be metric specific
-	static Map<Long, Long> startTimes;
+	static Map<Long, Map<String,Long>> startTimesPerMethodPerThreadId;
 	static Map<Long, Long> externalStartTimes;
 	static Map<Long, Long> externalTimes;
 
@@ -55,7 +55,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		logger.info("Initializing {}",
 				AppDataCollectorFactory.class.getSimpleName());
 
-		startTimes = new ConcurrentHashMap<Long, Long>();
+		startTimesPerMethodPerThreadId = new ConcurrentHashMap<Long, Map<String,Long>>();
 		externalStartTimes = new ConcurrentHashMap<Long, Long>();
 		externalTimes = new ConcurrentHashMap<Long, Long>();
 		try {
@@ -75,7 +75,9 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 					kbURL, kbSyncPeriod);
 			
 			logger.info("Starting synchronization with KB");
-			_INSTANCE.startSyncingWithKB(kbSyncPeriod);
+			
+			if (config.isStartSyncingWithKB())
+				_INSTANCE.startSyncingWithKB(kbSyncPeriod);
 		} catch (Exception e) {
 			logger.error("Could not initilize {} properly",
 					AppDataCollectorFactory.class.getSimpleName(), e);
@@ -125,9 +127,9 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		}
 	}
 
-//	public static void startSyncingWithKB() {
-//		_INSTANCE.startSyncingWithKB(kbSyncPeriod);
-//	}
+	public static void startSyncingWithKB() {
+		_INSTANCE.startSyncingWithKB(kbSyncPeriod);
+	}
 
 	public static void startsExternalCall() {
 		Long externalCallStartTime = externalStartTimes

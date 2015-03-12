@@ -16,6 +16,9 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.EffectiveResponseTime;
 import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 
@@ -30,20 +33,38 @@ public aspect MonitorAspect {
 
 	before(Monitor methodType) : monitoredMethod(methodType) {
 		logger.debug("Executing monitored method \"{}\"", methodType.type());
-		AppDataCollectorFactory.startTimes.put(Thread.currentThread().getId(),
-				System.currentTimeMillis());
+		Long threadId = Thread.currentThread().getId();
+		Map<String, Long> startTimePerMethod = AppDataCollectorFactory.startTimesPerMethodPerThreadId
+				.get(threadId);
+		if (startTimePerMethod == null) {
+			startTimePerMethod = new ConcurrentHashMap<String, Long>();
+			AppDataCollectorFactory.startTimesPerMethodPerThreadId.put(
+					threadId, startTimePerMethod);
+		}
+		startTimePerMethod.put(methodType.type(), System.currentTimeMillis());
 	}
 
 	after(Monitor methodType): monitoredMethod(methodType){
 		long end = System.currentTimeMillis();
+		Long threadId = Thread.currentThread().getId();
 		long responseTime = end
-				- AppDataCollectorFactory.startTimes.remove(Thread.currentThread().getId());
-		Long externalTime = AppDataCollectorFactory.externalTimes
-				.remove(Thread.currentThread().getId());
+				- AppDataCollectorFactory.startTimesPerMethodPerThreadId.get(
+						threadId).remove(methodType.type());
+		Long externalTime = AppDataCollectorFactory.externalTimes.get(threadId);
+
+		if (AppDataCollectorFactory.startTimesPerMethodPerThreadId
+				.get(threadId).isEmpty()) {
+			AppDataCollectorFactory.startTimesPerMethodPerThreadId
+					.remove(threadId);
+			AppDataCollectorFactory.externalTimes.remove(threadId);
+		}
+
 		long effectiveResponseTime = responseTime
 				- (externalTime != null ? externalTime : 0);
-		logger.debug("Response Time:" + responseTime);
-		logger.debug("Effective Response Time:" + effectiveResponseTime);
+		logger.debug("Response Time for method {}: {}", methodType.type(),
+				responseTime);
+		logger.debug("Effective Response Time for method {}: {}",
+				methodType.type(), effectiveResponseTime);
 
 		AppDataCollectorFactory.collect(String.valueOf(responseTime),
 				new ResponseTime(),

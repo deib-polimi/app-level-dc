@@ -18,6 +18,9 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.5.1:
+* Fixed a problem that prevented methods called by monitored methods to be monitored 
+
 v0.5:
 * EffectiveResponseTime added as new metric
 * API changed, check the doc
