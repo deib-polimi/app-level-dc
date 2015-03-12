@@ -67,9 +67,6 @@ Then you need to include in your build life cycle the aspectj plugin:
 </build>
 ```
 
-Have a look at the examples in the examples package for understanding how to use the library.
-
-In short:
 - Annotate methods you want to monitor, passing the [Resource Type](https://github.com/deib-polimi/modaclouds-qos-models/blob/master/doc/user-manual.md#the-monitoring-ontology) of the monitored method
 
 	```java
