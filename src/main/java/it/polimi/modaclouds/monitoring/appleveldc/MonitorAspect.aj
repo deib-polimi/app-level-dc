@@ -26,55 +26,15 @@ public aspect MonitorAspect {
 	private pointcut monitoredMethod(Monitor methodType) : execution(@Monitor * *(..)) && @annotation(methodType);
 
 	before(Monitor methodType) : monitoredMethod(methodType) {
-		logger.debug("Starting method: {}", methodType.type());
-		Metric.notifyAllMethodStarts(methodType.type());
-		
-		/*
-		Long threadId = Thread.currentThread().getId();
-		Map<String, Long> startTimePerMethod = AppDataCollectorFactory.startTimesPerMethodPerThreadId
-				.get(threadId);
-		if (startTimePerMethod == null) {
-			startTimePerMethod = new ConcurrentHashMap<String, Long>();
-			AppDataCollectorFactory.startTimesPerMethodPerThreadId.put(
-					threadId, startTimePerMethod);
-		}
-		startTimePerMethod.put(methodType.type(), System.currentTimeMillis());
-		*/
+		String methodId = AppDataCollectorFactory.getMethodId(methodType.type());
+		logger.debug("Starting method: {}", methodId);
+		Metric.notifyAllMethodStarts(methodId);
 	}
 
 	after(Monitor methodType): monitoredMethod(methodType){
-		logger.debug("Ending method: {}", methodType.type());
-		Metric.notifyAllMethodEnds(methodType.type());
-		
-		/*
-		long end = System.currentTimeMillis();
-		Long threadId = Thread.currentThread().getId();
-		long responseTime = end
-				- AppDataCollectorFactory.startTimesPerMethodPerThreadId.get(
-						threadId).remove(methodType.type());
-		Long externalTime = AppDataCollectorFactory.externalTimes.get(threadId);
-
-		if (AppDataCollectorFactory.startTimesPerMethodPerThreadId
-				.get(threadId).isEmpty()) {
-			AppDataCollectorFactory.startTimesPerMethodPerThreadId
-					.remove(threadId);
-			AppDataCollectorFactory.externalTimes.remove(threadId);
-		}
-
-		long effectiveResponseTime = responseTime
-				- (externalTime != null ? externalTime : 0);
-		logger.debug("Response Time for method {}: {}", methodType.type(),
-				responseTime);
-		logger.debug("Effective Response Time for method {}: {}",
-				methodType.type(), effectiveResponseTime);
-
-		AppDataCollectorFactory.collect(String.valueOf(responseTime),
-				new ResponseTime(),
-				AppDataCollectorFactory.getMethodId(methodType.type()));
-		AppDataCollectorFactory.collect(String.valueOf(effectiveResponseTime),
-				new EffectiveResponseTime(),
-				AppDataCollectorFactory.getMethodId(methodType.type()));
-				*/
+		String methodId = AppDataCollectorFactory.getMethodId(methodType.type());
+		logger.debug("Ending method: {}", methodId);
+		Metric.notifyAllMethodEnds(methodId);
 	}
 
 }

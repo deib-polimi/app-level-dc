@@ -63,28 +63,23 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		return appId + "-" + methodType;
 	}
 
-	static void collect(String value, Metric metric, String monitoredResourceId) {
+	static void send(String value, Metric metric, String monitoredResourceId) {
 		if (_INSTANCE == null) {
 			logger.error("Data Collector not initialized properly, could not collect data");
 			return;
 		}
-		Set<DCConfig> dcs = _INSTANCE.getConfiguration(monitoredResourceId,
-				metric.getName());
-		if (dcs != null && !dcs.isEmpty()) {
-			DCConfig dc = metric.selectDC(dcs);
-			if (metric.shouldSend(dc))
-				_INSTANCE.sendAsyncMonitoringDatum(value, metric.getName(),
-						monitoredResourceId);
-		}
+		_INSTANCE.sendAsyncMonitoringDatum(value, metric.getName(),
+				monitoredResourceId);
 	}
 
 	/**
-	 * Start the synchronization with the KB. Nothing will happen if it was already started.
+	 * Start the synchronization with the KB. Nothing will happen if it was
+	 * already started.
 	 */
 	public static void startSyncingWithKB() {
 		_INSTANCE.startSyncingWithKB(kbSyncPeriod);
 	}
-	
+
 	/**
 	 * Delimit the starting of an external call programmatically
 	 */
@@ -132,6 +127,11 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 				_INSTANCE.startSyncingWithKB(kbSyncPeriod);
 			initialized = true;
 		}
+	}
+
+	protected static Set<DCConfig> getConfiguration(String monitoredResourceId,
+			Metric metric) {
+		return _INSTANCE.getConfiguration(monitoredResourceId, metric.getName());
 	}
 
 }

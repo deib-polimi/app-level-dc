@@ -16,7 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc.metrics;
 
-import it.polimi.modaclouds.monitoring.appleveldc.AppDataCollectorFactory;
 import it.polimi.modaclouds.monitoring.appleveldc.Metric;
 import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
 
@@ -54,8 +53,7 @@ public class EffectiveResponseTime extends Metric {
 		return Double.valueOf(samplingProbability);
 	}
 
-	@Override
-	protected DCConfig selectDC(Set<DCConfig> dcs) {
+	private Double selectSamplingProbability(Set<DCConfig> dcs) {
 		DCConfig chosen = null;
 		double biggerSP = 0;
 		for (DCConfig dcConfig : dcs) {
@@ -66,18 +64,20 @@ public class EffectiveResponseTime extends Metric {
 				biggerSP = samplingProbability;
 			}
 		}
-		return chosen;
+		Map<String, String> parameters = chosen.getParameters();
+		return getSamplingProbability(parameters);
 	}
 
-	@Override
-	protected boolean shouldSend(DCConfig dc) {
-		Map<String, String> parameters = dc.getParameters();
-		double samplingProbability = getSamplingProbability(parameters);
+	private boolean shouldSend(String methodId) {
+		Set<DCConfig> dcsConfigs = getConfiguration(methodId);
+		if (dcsConfigs == null || dcsConfigs.isEmpty())
+			return false;
+		Double samplingProbability = selectSamplingProbability(dcsConfigs);
 		return (Math.random() < samplingProbability);
 	}
 
 	@Override
-	protected void methodStarts(String type) {
+	protected void methodStarts(String methodId) {
 		Long threadId = Thread.currentThread().getId();
 		Map<String, Long> startTimePerMethod = startTimesPerMethodPerThreadId
 				.get(threadId);
@@ -85,24 +85,25 @@ public class EffectiveResponseTime extends Metric {
 			startTimePerMethod = new ConcurrentHashMap<String, Long>();
 			startTimesPerMethodPerThreadId.put(threadId, startTimePerMethod);
 		}
-		startTimePerMethod.put(type, System.currentTimeMillis());
+		startTimePerMethod.put(methodId, System.currentTimeMillis());
 	}
 
 	@Override
-	protected void methodEnds(String type) {
+	protected void methodEnds(String methodId) {
 		long endTime = System.currentTimeMillis();
 		Long threadId = Thread.currentThread().getId();
 		long effectiveResponseTime = endTime
-				- startTimesPerMethodPerThreadId.get(threadId).remove(type);
+				- startTimesPerMethodPerThreadId.get(threadId).remove(methodId);
 		if (startTimesPerMethodPerThreadId.get(threadId).isEmpty()) {
 			startTimesPerMethodPerThreadId.remove(threadId);
 		}
 
-		logger.debug("Effective Response Time for method {}: {}", type,
+		logger.debug("Effective Response Time for method {}: {}", methodId,
 				effectiveResponseTime);
 
-		collect(String.valueOf(effectiveResponseTime),
-				AppDataCollectorFactory.getMethodId(type));
+		if (shouldSend(methodId)) {
+			send(String.valueOf(effectiveResponseTime), methodId);
+		}
 	}
 
 	@Override

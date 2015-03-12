@@ -18,12 +18,9 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import it.polimi.modaclouds.monitoring.appleveldc.metrics.ResponseTime;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class ResponseTimeTest {
 
@@ -31,7 +28,7 @@ public class ResponseTimeTest {
 	public void setUp() throws ConfigurationException {
 		Config config = mock(Config.class);
 		Config.setInstance(config);
-		when(config.getAppId()).thenReturn("whatever");
+		when(config.getAppId()).thenReturn("myApp");
 		when(config.getDdaUrl()).thenReturn("whatever");
 		when(config.getKbUrl()).thenReturn("http://localhost:3030");
 		when(config.isStartSyncingWithKB()).thenReturn(false);

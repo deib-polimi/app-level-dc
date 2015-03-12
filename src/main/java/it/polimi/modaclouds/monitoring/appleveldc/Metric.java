@@ -32,7 +32,8 @@ public abstract class Metric {
 
 	static {
 		Reflections.log = null;
-		Reflections reflections = new Reflections("it.polimi.modaclouds.monitoring.appleveldc.metrics");
+		Reflections reflections = new Reflections(
+				"it.polimi.modaclouds.monitoring.appleveldc.metrics");
 		Set<Class<? extends Metric>> metricsClasses = reflections
 				.getSubTypesOf(Metric.class);
 		for (Class<? extends Metric> metricClass : metricsClasses) {
@@ -46,13 +47,13 @@ public abstract class Metric {
 		}
 	}
 
-	protected abstract DCConfig selectDC(Set<DCConfig> dcs);
+	// protected abstract DCConfig selectDC(Set<DCConfig> dcs);
 
 	protected String getName() {
 		return getClass().getSimpleName();
 	}
 
-	protected abstract boolean shouldSend(DCConfig dc);
+	// protected abstract boolean shouldSend(DCConfig dc);
 
 	static void notifyAllMethodStarts(String type) {
 		for (Metric metric : metrics) {
@@ -91,11 +92,24 @@ public abstract class Metric {
 			metric.syncedWithKB();
 		}
 	}
-	
+
 	protected abstract void syncedWithKB();
-	
-	protected final void collect(String value, String monitoredResourceId){
-		AppDataCollectorFactory.collect(value, this, monitoredResourceId);
+
+	protected final void send(String value, String monitoredResourceId) {
+		Set<DCConfig> dcsConfigs = AppDataCollectorFactory.getConfiguration(
+				monitoredResourceId, this);
+		if (dcsConfigs == null || dcsConfigs.isEmpty()) {
+			logger.warn("Attempting to send data even if not required by the configuration, data won't be sent");
+			return;
+		}
+		AppDataCollectorFactory.send(value, this, monitoredResourceId);
+	}
+
+	protected final Set<DCConfig> getConfiguration(String monitoredResourceId) {
+		Set<DCConfig> dcsConfigs = AppDataCollectorFactory.getConfiguration(monitoredResourceId,
+				this);
+		if (dcsConfigs==null) dcsConfigs = new HashSet<DCConfig>();
+		return dcsConfigs;
 	}
 
 }
