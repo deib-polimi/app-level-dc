@@ -21,8 +21,12 @@ import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
 import it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector;
 
+import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,13 +124,28 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 					"{} initialized with:\n\tddaURL: {}\n\tkbURL: {}\n\tkbSyncPeriod: {}",
 					AppDataCollectorFactory.class.getSimpleName(), ddaURL,
 					kbURL, kbSyncPeriod);
+			
+			logger.info("Parsing monitored methods");			
+			Metric.setMonitoredMethodsIds(parseMonitoredMethodsIds());
 
 			logger.info("Starting synchronization with KB");
-
 			if (config.isStartSyncingWithKB())
 				_INSTANCE.startSyncingWithKB(kbSyncPeriod);
 			initialized = true;
 		}
+	}
+
+	static Set<String> parseMonitoredMethodsIds() {
+		Reflections.log = null;
+		Reflections reflections = new Reflections(new MethodAnnotationsScanner());
+		Set<Method> annotatedMethods = reflections
+				.getMethodsAnnotatedWith(Monitor.class);
+		Set<String> monitoredMethodsIds = new HashSet<String>();
+		for (Method method : annotatedMethods) {
+			monitoredMethodsIds.add(AppDataCollectorFactory.getMethodId(method
+					.getAnnotation(Monitor.class).type()));
+		}
+		return monitoredMethodsIds;
 	}
 
 	protected static Set<DCConfig> getConfiguration(String monitoredResourceId,

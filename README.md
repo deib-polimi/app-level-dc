@@ -18,6 +18,9 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.6:
+* Throughput added as new metric
+
 v0.5.2:
 * Synchronization with KB can be started manually, see the doc
 

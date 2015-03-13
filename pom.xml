@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.polimi.modaclouds.monitoring</groupId>
 	<artifactId>app-level-dc</artifactId>
-	<version>0.5.2</version>
+	<version>0.6</version>
 
 	<inceptionYear>2014</inceptionYear>
 

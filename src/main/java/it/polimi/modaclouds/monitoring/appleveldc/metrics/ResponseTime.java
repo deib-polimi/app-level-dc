@@ -46,24 +46,31 @@ public class ResponseTime extends Metric {
 	private static double getSamplingProbability(Map<String, String> parameters) {
 		String samplingProbability = parameters
 				.get(Parameter.samplingProbability.name());
-		if (samplingProbability == null)
+		if (!isValidSamplingProbability(samplingProbability)) {
+			logger.warn(
+					"{} is not a valid sampling probability. "
+					+ "A valid sampling probability should be a double between 0 and 1. "
+					+ "The default value {} will be used",
+					samplingProbability, Parameter.samplingProbability.defaultValue);
 			samplingProbability = Parameter.samplingProbability.defaultValue;
+		}
 		return Double.valueOf(samplingProbability);
+	}
+	
+	private static boolean isValidSamplingProbability(String samplingProbability) {
+		return isDouble(samplingProbability) && Math.abs(Double.valueOf(samplingProbability)-0.5)<=0.5;
 	}
 
 	private Double selectSamplingProbability(Set<DCConfig> dcs) {
-		DCConfig chosen = null;
 		double biggerSP = 0;
 		for (DCConfig dcConfig : dcs) {
 			double samplingProbability = getSamplingProbability(dcConfig
 					.getParameters());
 			if (samplingProbability > biggerSP) {
-				chosen = dcConfig;
 				biggerSP = samplingProbability;
 			}
 		}
-		Map<String, String> parameters = chosen.getParameters();
-		return getSamplingProbability(parameters);
+		return biggerSP;
 	}
 
 	private boolean shouldSend(String methodId) {

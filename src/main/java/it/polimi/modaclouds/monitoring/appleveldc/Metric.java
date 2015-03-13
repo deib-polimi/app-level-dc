@@ -28,7 +28,8 @@ import org.slf4j.LoggerFactory;
 public abstract class Metric {
 
 	private static final Logger logger = LoggerFactory.getLogger(Metric.class);
-	private static Set<Metric> metrics = new HashSet<Metric>();
+	static final Set<Metric> metrics = new HashSet<Metric>();
+	private static Set<String> monitoredMethodsIds = new HashSet<String>();
 
 	static {
 		Reflections.log = null;
@@ -47,13 +48,17 @@ public abstract class Metric {
 		}
 	}
 
-	// protected abstract DCConfig selectDC(Set<DCConfig> dcs);
+	protected Set<String> getMonitoredMethodsIds() {
+		return monitoredMethodsIds;
+	}
+
+	static void setMonitoredMethodsIds(Set<String> methodsIds) {
+		monitoredMethodsIds = methodsIds;
+	}
 
 	protected String getName() {
 		return getClass().getSimpleName();
 	}
-
-	// protected abstract boolean shouldSend(DCConfig dc);
 
 	static void notifyAllMethodStarts(String type) {
 		for (Metric metric : metrics) {
@@ -106,10 +111,33 @@ public abstract class Metric {
 	}
 
 	protected final Set<DCConfig> getConfiguration(String monitoredResourceId) {
-		Set<DCConfig> dcsConfigs = AppDataCollectorFactory.getConfiguration(monitoredResourceId,
-				this);
-		if (dcsConfigs==null) dcsConfigs = new HashSet<DCConfig>();
+		Set<DCConfig> dcsConfigs = AppDataCollectorFactory.getConfiguration(
+				monitoredResourceId, this);
+		if (dcsConfigs == null)
+			dcsConfigs = new HashSet<DCConfig>();
 		return dcsConfigs;
+	}
+
+	protected static boolean isDouble(String value) {
+		if (value == null)
+			return false;
+		try {
+			Double.parseDouble(value);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	protected static boolean isInteger(String value) {
+		if (value == null)
+			return false;
+		try {
+			Integer.parseInt(value);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 }

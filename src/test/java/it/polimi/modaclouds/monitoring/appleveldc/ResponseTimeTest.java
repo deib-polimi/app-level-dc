@@ -18,6 +18,11 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import it.polimi.modaclouds.monitoring.appleveldc.AppDataCollectorFactory;
+import it.polimi.modaclouds.monitoring.appleveldc.Config;
+import it.polimi.modaclouds.monitoring.appleveldc.ConfigurationException;
+import it.polimi.modaclouds.monitoring.appleveldc.ExternalCall;
+import it.polimi.modaclouds.monitoring.appleveldc.Monitor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +37,6 @@ public class ResponseTimeTest {
 		when(config.getDdaUrl()).thenReturn("whatever");
 		when(config.getKbUrl()).thenReturn("http://localhost:3030");
 		when(config.isStartSyncingWithKB()).thenReturn(false);
-		when(config.getKbSyncPeriod()).thenReturn(10);
 		AppDataCollectorFactory.init();
 	}
 

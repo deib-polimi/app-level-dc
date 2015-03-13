@@ -6,8 +6,9 @@
 
 |Metric Name|Target Class|Required Parameters|Description|
 |-----------|------------|-------------------|-----------|
-|ResponseTime|Method|<ul><li>samplingProbability</li></ul>|Whenever a monitored method is called, the response time for such method is collected and sent with the given probability|
-|EffectiveResponseTime|Method|<ul><li>samplingProbability</li></ul>|Like response time, but external calls are excluded|
+|ResponseTime|Method|<ul><li>samplingProbability (default:1)</li></ul>|Whenever a monitored method is called, the response time for such method is collected and sent with the given probability|
+|EffectiveResponseTime|Method|<ul><li>samplingProbability (default:1)</li></ul>|Like response time, but external calls are excluded|
+|Throughput|Method|<ul><li>samplingTime (default:60)</li></ul>|Collects throughput in requests per second with the given sampling time (in seconds)|
 
 ## Usage
 
