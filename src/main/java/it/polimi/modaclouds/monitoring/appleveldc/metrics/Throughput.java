@@ -33,7 +33,8 @@ public class Throughput extends Metric {
 	private static final Logger logger = LoggerFactory
 			.getLogger(Throughput.class);
 
-	private static final Map<String, Integer> counterPerMethodId = new ConcurrentHashMap<String, Integer>();
+	private static final Map<String, Integer> counterPerMethodId4Methods = new ConcurrentHashMap<String, Integer>();
+	private static int counter4App;
 	private static final Map<String, Timer> timerPerMethodId = new ConcurrentHashMap<String, Timer>();
 	private static final Map<String, Long> samplingTimePerMethodId = new ConcurrentHashMap<String, Long>();
 
@@ -47,27 +48,32 @@ public class Throughput extends Metric {
 		}
 	}
 
+	private Timer appTimer;
+
+	private long appSamplingTime;
+
 	@Override
 	protected void methodStarts(String methodId) {
-		//nothing to do
+		// nothing to do
 	}
 
 	@Override
 	protected void methodEnds(String methodId) {
-		Integer count = counterPerMethodId.get(methodId);
-		if (count!=null){
-			counterPerMethodId.put(methodId, count+1);
+		Integer count = counterPerMethodId4Methods.get(methodId);
+		if (count != null) {
+			counterPerMethodId4Methods.put(methodId, count + 1);
 		}
+		counter4App++;
 	}
 
 	@Override
 	protected void externalMethodStarts() {
-		//nothing to do
+		// nothing to do
 	}
 
 	@Override
 	protected void externalMethodEnds() {
-		//nothing to do
+		// nothing to do
 	}
 
 	@Override
@@ -81,24 +87,42 @@ public class Throughput extends Metric {
 					timerPerMethodId.remove(methodId).cancel();
 				}
 				if (!timerPerMethodId.containsKey(methodId)) {
-					counterPerMethodId.put(methodId, 0);
+					counterPerMethodId4Methods.put(methodId, 0);
 					Timer timer = new Timer();
 					timerPerMethodId.put(methodId, timer);
 					samplingTimePerMethodId.put(methodId, newSamplingTime);
-					timer.scheduleAtFixedRate(new throughputSender(methodId),
-							0, newSamplingTime);
+					timer.scheduleAtFixedRate(new ThroughputSender4Methods(
+							methodId), 0, newSamplingTime);
 				}
 			} else {
 				Timer timer = timerPerMethodId.remove(methodId);
 				if (timer != null)
 					timer.cancel();
-				counterPerMethodId.remove(methodId);
+				counterPerMethodId4Methods.remove(methodId);
 			}
+		}
+		if (shouldSend(getAppId())) {
+			long newSamplingTime = getSamplingTime(getAppId());
+			if (appTimer != null && appSamplingTime != newSamplingTime) {
+				appTimer.cancel();
+				appTimer = null;
+			}
+			if (appTimer == null) {
+				counter4App = 0;
+				appTimer = new Timer();
+				appSamplingTime = newSamplingTime;
+				appTimer.scheduleAtFixedRate(new ThroughputSender4App(
+						getAppId()), 0, newSamplingTime);
+			}
+		} else {
+			if (appTimer != null)
+				appTimer.cancel();
+			appTimer = null;
 		}
 	}
 
-	private long getSamplingTime(String methodId) {
-		Set<DCConfig> dcsConfigs = getConfiguration(methodId);
+	private long getSamplingTime(String resourceId) {
+		Set<DCConfig> dcsConfigs = getConfiguration(resourceId);
 		return selectSamplingTime(dcsConfigs);
 	}
 
@@ -130,23 +154,37 @@ public class Throughput extends Metric {
 		return smallerST;
 	}
 
-	private boolean shouldSend(String methodId) {
-		Set<DCConfig> dcsConfigs = getConfiguration(methodId);
+	private boolean shouldSend(String resourceId) {
+		Set<DCConfig> dcsConfigs = getConfiguration(resourceId);
 		return dcsConfigs != null && dcsConfigs.isEmpty();
 	}
 
-	private final class throughputSender extends TimerTask {
+	private final class ThroughputSender4Methods extends TimerTask {
 		private String methodId;
 
-		public throughputSender(String methodId) {
+		public ThroughputSender4Methods(String methodId) {
 			this.methodId = methodId;
 		}
 
 		@Override
 		public void run() {
-			send(Long.toString(counterPerMethodId.get(methodId)
+			send(Long.toString(counterPerMethodId4Methods.get(methodId)
 					/ samplingTimePerMethodId.get(methodId)), methodId);
-			counterPerMethodId.put(methodId, 0);
+			counterPerMethodId4Methods.put(methodId, 0);
+		}
+	}
+
+	private final class ThroughputSender4App extends TimerTask {
+		private String appId;
+
+		public ThroughputSender4App(String appId) {
+			this.appId = appId;
+		}
+
+		@Override
+		public void run() {
+			send(Long.toString(counter4App / appSamplingTime), appId);
+			counter4App = 0;
 		}
 	}
 

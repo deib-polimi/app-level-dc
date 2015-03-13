@@ -153,4 +153,8 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		return _INSTANCE.getConfiguration(monitoredResourceId, metric.getName());
 	}
 
+	public static String getAppId() {
+		return appId;
+	}
+
 }

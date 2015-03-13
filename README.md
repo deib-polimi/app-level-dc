@@ -18,6 +18,9 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.6.1:
+* Throughput can be collected also for the entire application
+
 v0.6:
 * Throughput added as new metric
 

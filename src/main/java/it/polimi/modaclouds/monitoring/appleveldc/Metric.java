@@ -51,6 +51,10 @@ public abstract class Metric {
 	protected Set<String> getMonitoredMethodsIds() {
 		return monitoredMethodsIds;
 	}
+	
+	protected String getAppId(){
+		return AppDataCollectorFactory.getAppId();
+	}
 
 	static void setMonitoredMethodsIds(Set<String> methodsIds) {
 		monitoredMethodsIds = methodsIds;
