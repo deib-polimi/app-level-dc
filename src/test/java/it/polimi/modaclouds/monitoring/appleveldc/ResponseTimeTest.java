@@ -37,7 +37,7 @@ public class ResponseTimeTest {
 		when(config.getDdaUrl()).thenReturn("whatever");
 		when(config.getKbUrl()).thenReturn("http://localhost:3030");
 		when(config.isStartSyncingWithKB()).thenReturn(false);
-		AppDataCollectorFactory.init();
+		AppDataCollectorFactory.init("it.polimi.modaclouds");
 	}
 
 	@Test

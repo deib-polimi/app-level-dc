@@ -17,6 +17,9 @@
 package it.polimi.modaclouds.monitoring.appleveldc;
 
 import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.InternalComponent;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Method;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +32,8 @@ public abstract class Metric {
 
 	private static final Logger logger = LoggerFactory.getLogger(Metric.class);
 	static final Set<Metric> metrics = new HashSet<Metric>();
-	private static Set<String> monitoredMethodsIds = new HashSet<String>();
+	// private static Set<Method> monitoredMethods;
+	// private static InternalComponent monitoredApp;
 
 	static {
 		Reflections.log = null;
@@ -48,37 +52,47 @@ public abstract class Metric {
 		}
 	}
 
-	protected Set<String> getMonitoredMethodsIds() {
-		return monitoredMethodsIds;
-	}
-	
-	protected String getAppId(){
-		return AppDataCollectorFactory.getAppId();
+	protected static Set<Method> getMonitoredMethods() {
+		Set<Method> monitoredMethods = AppDataCollectorFactory
+				.getMonitoredMethods();
+		if (monitoredMethods == null) {
+			monitoredMethods = new HashSet<Method>();
+		}
+		return monitoredMethods;
 	}
 
-	static void setMonitoredMethodsIds(Set<String> methodsIds) {
-		monitoredMethodsIds = methodsIds;
+	protected static InternalComponent getMonitoredApp() {
+		return AppDataCollectorFactory.getMonitoredApp();
 	}
+
+	//
+	// protected static void setMonitoredApp(InternalComponent monitoredApp) {
+	// Metric.monitoredApp = monitoredApp;
+	// }
+	//
+	// static void setMonitoredMethods(Set<Method> methods) {
+	// monitoredMethods = methods;
+	// }
 
 	protected String getName() {
 		return getClass().getSimpleName();
 	}
 
-	static void notifyAllMethodStarts(String type) {
+	static void notifyAllMethodStarts(Method method) {
 		for (Metric metric : metrics) {
-			metric.methodStarts(type);
+			metric.methodStarts(method);
 		}
 	}
 
-	static void notifyAllMethodEnds(String type) {
+	static void notifyAllMethodEnds(Method method) {
 		for (Metric metric : metrics) {
-			metric.methodEnds(type);
+			metric.methodEnds(method);
 		}
 	}
 
-	protected abstract void methodStarts(String type);
+	protected abstract void methodStarts(Method method);
 
-	protected abstract void methodEnds(String type);
+	protected abstract void methodEnds(Method method);
 
 	static void notifyAllExternalMethodStarts() {
 		for (Metric metric : metrics) {
@@ -104,19 +118,19 @@ public abstract class Metric {
 
 	protected abstract void syncedWithKB();
 
-	protected final void send(String value, String monitoredResourceId) {
+	protected final void send(String value, Resource resource) {
 		Set<DCConfig> dcsConfigs = AppDataCollectorFactory.getConfiguration(
-				monitoredResourceId, this);
+				resource, this);
 		if (dcsConfigs == null || dcsConfigs.isEmpty()) {
 			logger.warn("Attempting to send data even if not required by the configuration, data won't be sent");
 			return;
 		}
-		AppDataCollectorFactory.send(value, this, monitoredResourceId);
+		AppDataCollectorFactory.send(value, this, resource);
 	}
 
-	protected final Set<DCConfig> getConfiguration(String monitoredResourceId) {
+	protected final Set<DCConfig> getConfiguration(Resource resource) {
 		Set<DCConfig> dcsConfigs = AppDataCollectorFactory.getConfiguration(
-				monitoredResourceId, this);
+				resource, this);
 		if (dcsConfigs == null)
 			dcsConfigs = new HashSet<DCConfig>();
 		return dcsConfigs;

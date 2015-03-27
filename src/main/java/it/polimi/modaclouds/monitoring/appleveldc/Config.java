@@ -22,10 +22,10 @@ public class Config {
 
 	private static Config _instance = null;
 	private UrlValidator validator;
-	private String ddaIP;
-	private String ddaPort;
-	private String kbIP;
-	private String kbPort;
+	private String ddaIP = "127.0.0.1";
+	private String ddaPort = "8175";
+	private String kbIP = "127.0.0.1";
+	private String kbPort = "3030";
 	private String kbPath = "/modaclouds/kb";
 	private String ddaUrl;
 	private String kbUrl;
@@ -45,10 +45,10 @@ public class Config {
 
 	private Config() throws ConfigurationException {
 		validator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
-		ddaIP = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_IP);
-		ddaPort = getMandatoryEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT);
-		kbIP = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP);
-		kbPort = getMandatoryEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT);
+		ddaIP = getOptionalEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_IP, ddaIP);
+		ddaPort = getOptionalEnvVar(Env.MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT, ddaPort);
+		kbIP = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP,kbIP);
+		kbPort = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT,kbPort);
 		kbPath = getOptionalEnvVar(Env.MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH,kbPath);
 		String kbSyncPeriodString = getOptionalEnvVar(
 				Env.MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD,
@@ -68,7 +68,7 @@ public class Config {
 
 		try {
 			kbSyncPeriod = Integer.parseInt(kbSyncPeriodString);
-			startSyncingWithKB = Boolean.getBoolean(startSyncingWithKBString);
+			startSyncingWithKB = Boolean.parseBoolean(startSyncingWithKBString);
 		} catch (NumberFormatException e) {
 			throw new ConfigurationException(kbSyncPeriodString
 					+ " is not a valid value for "

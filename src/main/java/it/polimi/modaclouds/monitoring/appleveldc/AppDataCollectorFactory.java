@@ -18,8 +18,8 @@ package it.polimi.modaclouds.monitoring.appleveldc;
 
 import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
-import it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.InternalComponent;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,17 +47,22 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 
 	private static boolean initialized = false;
 
+	private static Set<it.polimi.modaclouds.qos_models.monitoring_ontology.Method> monitoredMethods;
+
+	private static InternalComponent monitoredApp;
+
 	static {
 		try {
-			init();
+			init("");
 		} catch (Exception e) {
-			logger.error("Could not initilize {} properly",
-					AppDataCollectorFactory.class.getSimpleName(), e);
+			logger.error("Could not initialize {} properly: {}",
+					AppDataCollectorFactory.class.getSimpleName(),
+					e.getMessage());
 		}
 	}
 
-	private AppDataCollectorFactory(DDAConnector dda, KBConnector kb) {
-		super(dda, kb);
+	private AppDataCollectorFactory(String ddaURL, String kbURL) {
+		super(ddaURL, kbURL);
 	}
 
 	@Override
@@ -63,17 +70,17 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		Metric.notifyAllSyncedWithKB();
 	}
 
-	public static String getMethodId(String methodType) {
-		return appId + "-" + methodType;
-	}
+	// public static String getMethodId(String methodType) {
+	// return appId + "-" + methodType;
+	// }
 
-	static void send(String value, Metric metric, String monitoredResourceId) {
+	static void send(String value, Metric metric, Resource resource) {
 		if (_INSTANCE == null) {
-			logger.error("Data Collector not initialized properly, could not collect data");
+			logger.error("{} not initialized properly, could not collect data",
+					AppDataCollectorFactory.class.getSimpleName());
 			return;
 		}
-		_INSTANCE.sendAsyncMonitoringDatum(value, metric.getName(),
-				monitoredResourceId);
+		_INSTANCE.sendAsyncMonitoringDatum(value, metric.getName(), resource);
 	}
 
 	/**
@@ -100,12 +107,8 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		Metric.notifyAllExternalMethodEnds();
 	}
 
-	/**
-	 * Initialize the data collector
-	 * 
-	 * @throws ConfigurationException
-	 */
-	public static void init() throws ConfigurationException {
+	public static void init(String monitoredClassesPackagePrefix)
+			throws ConfigurationException {
 		if (!initialized) {
 			logger.info("Initializing {}",
 					AppDataCollectorFactory.class.getSimpleName());
@@ -116,17 +119,17 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 			kbSyncPeriod = config.getKbSyncPeriod();
 			appId = config.getAppId();
 
-			DDAConnector dda = new DDAConnector(ddaURL);
-			KBConnector kb = new KBConnector(kbURL);
-			_INSTANCE = new AppDataCollectorFactory(dda, kb);
+			_INSTANCE = new AppDataCollectorFactory(ddaURL, kbURL);
 
 			logger.info(
 					"{} initialized with:\n\tddaURL: {}\n\tkbURL: {}\n\tkbSyncPeriod: {}",
 					AppDataCollectorFactory.class.getSimpleName(), ddaURL,
 					kbURL, kbSyncPeriod);
-			
-			logger.info("Parsing monitored methods");			
-			Metric.setMonitoredMethodsIds(parseMonitoredMethodsIds());
+
+			logger.info("Parsing monitored methods");
+			monitoredMethods = parseMonitoredMethods(monitoredClassesPackagePrefix);
+			monitoredApp = (InternalComponent) _INSTANCE.kb
+					.getResourceById(appId);
 
 			logger.info("Starting synchronization with KB");
 			if (config.isStartSyncingWithKB())
@@ -135,26 +138,49 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		}
 	}
 
-	static Set<String> parseMonitoredMethodsIds() {
+	static Set<it.polimi.modaclouds.qos_models.monitoring_ontology.Method> parseMonitoredMethods(
+			String monitoredClassesPackagePrefix) {
 		Reflections.log = null;
-		Reflections reflections = new Reflections(new MethodAnnotationsScanner());
+		Reflections reflections = new Reflections(new ConfigurationBuilder()
+				.setUrls(
+						ClasspathHelper
+								.forPackage(monitoredClassesPackagePrefix))
+				.setScanners(new MethodAnnotationsScanner()));
 		Set<Method> annotatedMethods = reflections
 				.getMethodsAnnotatedWith(Monitor.class);
-		Set<String> monitoredMethodsIds = new HashSet<String>();
+		Set<it.polimi.modaclouds.qos_models.monitoring_ontology.Method> monitoredMethods = new HashSet<it.polimi.modaclouds.qos_models.monitoring_ontology.Method>();
 		for (Method method : annotatedMethods) {
-			monitoredMethodsIds.add(AppDataCollectorFactory.getMethodId(method
-					.getAnnotation(Monitor.class).type()));
+			monitoredMethods
+					.add(new it.polimi.modaclouds.qos_models.monitoring_ontology.Method(
+							AppDataCollectorFactory.getAppId(), method
+									.getAnnotation(Monitor.class).type()));
 		}
-		return monitoredMethodsIds;
+		return monitoredMethods;
 	}
 
-	protected static Set<DCConfig> getConfiguration(String monitoredResourceId,
+	protected static Set<DCConfig> getConfiguration(Resource resource,
 			Metric metric) {
-		return _INSTANCE.getConfiguration(monitoredResourceId, metric.getName());
+		if (_INSTANCE == null) {
+			logger.error("{} not initilialized properly",
+					AppDataCollectorFactory.class.getSimpleName());
+			return new HashSet<DCConfig>();
+		}
+		return _INSTANCE.getConfiguration(resource, metric.getName());
 	}
 
 	public static String getAppId() {
 		return appId;
+	}
+
+	public static Set<it.polimi.modaclouds.qos_models.monitoring_ontology.Method> getMonitoredMethods() {
+		return monitoredMethods;
+	}
+
+	public static InternalComponent getMonitoredApp() {
+		if (monitoredApp == null)
+			monitoredApp = (InternalComponent) _INSTANCE.kb
+					.getResourceById(appId);
+		return monitoredApp;
 	}
 
 }

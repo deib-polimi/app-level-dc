@@ -95,14 +95,14 @@ Then you need to include in your build life cycle the aspectj plugin:
 	}
 	```
 - In order for the data collector to work properly the following configuration must be set either through environement variables or through system properties (System properties have priority if a variable is specified in both ways):
-	* `MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP`
-	* `MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT`
-	* `MODACLOUDS_MONITORING_DDA_ENDPOINT_IP`
-	* `MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT`
-	* `MODACLOUDS_MONITORED_APP_ID`
+	* `MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_IP` (optional, default: "127.0.0.1")
+	* `MODACLOUDS_KNOWLEDGEBASE_ENDPOINT_PORT` (optional, default: "3030")
+	* `MODACLOUDS_MONITORING_DDA_ENDPOINT_IP` (optional, default: "127.0.0.1")
+	* `MODACLOUDS_MONITORING_DDA_ENDPOINT_PORT` (optional, default: "8175")
+	* `MODACLOUDS_MONITORED_APP_ID` (mandatory)
 	* `MODACLOUDS_KNOWLEDGEBASE_DATASET_PATH` (optional, default: "/modaclouds/kb")
-	* `MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD` (optional, default: 10)
-	* `MODACLOUDS_START_SYNC_WITH_KB` (optional, default: true)
+	* `MODACLOUDS_KNOWLEDGEBASE_SYNC_PERIOD` (optional, default: "10")
+	* `MODACLOUDS_START_SYNC_WITH_KB` (optional, default: "true")
 
 - If `MODACLOUDS_START_SYNC_WITH_KB` is set to false, KB synchronization won't start automatically. It can be started manually as follows:
 
@@ -112,8 +112,9 @@ Then you need to include in your build life cycle the aspectj plugin:
 - The data collector is automatically initialized as soon as the first monitored method is called. Configuration errors will be logged but won't raise any exception during automatic initialization. In order to check the correctness of the configuration and to avoid the initialization time to compromise the first collected datum it is suggested to initialize it manually at startup as follows:
 
 	```java
-	AppDataCollectorFactory.init();
+	AppDataCollectorFactory.init(monitoredClassesPackagePrefix);
 	```
+Setting a `monitoredClassesPackagePrefix` such as `"it.polimi.modaclouds.myapp"` will speedup the initial parsing of monitored methods. Automatic initialization will use the empty string `""`, which will make the library look for annotated methods in all possible packages.   
 
 KB and DDA must be running for the data collectors to be able to 
 retrieve their configuration from the KB and to be able to feed the DDA.

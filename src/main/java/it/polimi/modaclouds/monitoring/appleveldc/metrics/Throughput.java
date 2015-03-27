@@ -18,6 +18,9 @@ package it.polimi.modaclouds.monitoring.appleveldc.metrics;
 
 import it.polimi.modaclouds.monitoring.appleveldc.Metric;
 import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.InternalComponent;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Method;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
 import java.util.Map;
 import java.util.Set;
@@ -53,15 +56,15 @@ public class Throughput extends Metric {
 	private long appSamplingTime;
 
 	@Override
-	protected void methodStarts(String methodId) {
+	protected void methodStarts(Method method) {
 		// nothing to do
 	}
 
 	@Override
-	protected void methodEnds(String methodId) {
-		Integer count = counterPerMethodId4Methods.get(methodId);
+	protected void methodEnds(Method method) {
+		Integer count = counterPerMethodId4Methods.get(method.getId());
 		if (count != null) {
-			counterPerMethodId4Methods.put(methodId, count + 1);
+			counterPerMethodId4Methods.put(method.getId(), count + 1);
 		}
 		counter4App++;
 	}
@@ -78,31 +81,33 @@ public class Throughput extends Metric {
 
 	@Override
 	protected void syncedWithKB() {
-		Set<String> methodsIds = getMonitoredMethodsIds();
-		for (String methodId : methodsIds) {
-			if (shouldSend(methodId)) {
-				long newSamplingTime = getSamplingTime(methodId);
-				if (timerPerMethodId.containsKey(methodId)
-						&& samplingTimePerMethodId.get(methodId) != newSamplingTime) {
-					timerPerMethodId.remove(methodId).cancel();
+		Set<Method> methods = getMonitoredMethods();
+		for (Method method : methods) {
+			if (shouldSend(method)) {
+				long newSamplingTime = getSamplingTime(method);
+				if (timerPerMethodId.containsKey(method.getId())
+						&& samplingTimePerMethodId.get(method.getId()) != newSamplingTime) {
+					timerPerMethodId.remove(method.getId()).cancel();
 				}
-				if (!timerPerMethodId.containsKey(methodId)) {
-					counterPerMethodId4Methods.put(methodId, 0);
+				if (!timerPerMethodId.containsKey(method.getId())) {
+					counterPerMethodId4Methods.put(method.getId(), 0);
 					Timer timer = new Timer();
-					timerPerMethodId.put(methodId, timer);
-					samplingTimePerMethodId.put(methodId, newSamplingTime);
+					timerPerMethodId.put(method.getId(), timer);
+					samplingTimePerMethodId
+							.put(method.getId(), newSamplingTime);
 					timer.scheduleAtFixedRate(new ThroughputSender4Methods(
-							methodId), 0, newSamplingTime);
+							method), 0, newSamplingTime * 1000);
 				}
 			} else {
-				Timer timer = timerPerMethodId.remove(methodId);
+				Timer timer = timerPerMethodId.remove(method.getId());
 				if (timer != null)
 					timer.cancel();
-				counterPerMethodId4Methods.remove(methodId);
+				counterPerMethodId4Methods.remove(method.getId());
 			}
 		}
-		if (shouldSend(getAppId())) {
-			long newSamplingTime = getSamplingTime(getAppId());
+		InternalComponent app = getMonitoredApp();
+		if (app != null && shouldSend(app)) {
+			long newSamplingTime = getSamplingTime(getMonitoredApp());
 			if (appTimer != null && appSamplingTime != newSamplingTime) {
 				appTimer.cancel();
 				appTimer = null;
@@ -112,7 +117,7 @@ public class Throughput extends Metric {
 				appTimer = new Timer();
 				appSamplingTime = newSamplingTime;
 				appTimer.scheduleAtFixedRate(new ThroughputSender4App(
-						getAppId()), 0, newSamplingTime);
+						getMonitoredApp()), 0, newSamplingTime * 1000);
 			}
 		} else {
 			if (appTimer != null)
@@ -121,8 +126,8 @@ public class Throughput extends Metric {
 		}
 	}
 
-	private long getSamplingTime(String resourceId) {
-		Set<DCConfig> dcsConfigs = getConfiguration(resourceId);
+	private long getSamplingTime(Resource resource) {
+		Set<DCConfig> dcsConfigs = getConfiguration(resource);
 		return selectSamplingTime(dcsConfigs);
 	}
 
@@ -131,7 +136,7 @@ public class Throughput extends Metric {
 		if (!isValidSamplingTime(samplingTime)) {
 			logger.warn(
 					"{} is not a valid sampling time. "
-							+ "A valid sampling time should be an integer greater than 10. "
+							+ "A valid sampling time should be an integer equal to or greater than 10. "
 							+ "The default value {} will be used",
 					samplingTime, Parameter.samplingTime.defaultValue);
 			samplingTime = Parameter.samplingTime.defaultValue;
@@ -140,7 +145,7 @@ public class Throughput extends Metric {
 	}
 
 	private static boolean isValidSamplingTime(String samplingTime) {
-		return isInteger(samplingTime) && Integer.valueOf(samplingTime) > 10;
+		return isInteger(samplingTime) && Integer.valueOf(samplingTime) >= 10;
 	}
 
 	private int selectSamplingTime(Set<DCConfig> dcs) {
@@ -154,36 +159,37 @@ public class Throughput extends Metric {
 		return smallerST;
 	}
 
-	private boolean shouldSend(String resourceId) {
-		Set<DCConfig> dcsConfigs = getConfiguration(resourceId);
-		return dcsConfigs != null && dcsConfigs.isEmpty();
+	private boolean shouldSend(Resource resource) {
+		Set<DCConfig> dcsConfigs = getConfiguration(resource);
+		return dcsConfigs != null && !dcsConfigs.isEmpty();
 	}
 
 	private final class ThroughputSender4Methods extends TimerTask {
-		private String methodId;
+		private Resource resource;
 
-		public ThroughputSender4Methods(String methodId) {
-			this.methodId = methodId;
+		public ThroughputSender4Methods(Resource resource) {
+			this.resource = resource;
 		}
 
 		@Override
 		public void run() {
-			send(Long.toString(counterPerMethodId4Methods.get(methodId)
-					/ samplingTimePerMethodId.get(methodId)), methodId);
-			counterPerMethodId4Methods.put(methodId, 0);
+			send(Double.toString((double) counterPerMethodId4Methods
+					.get(resource.getId())
+					/ samplingTimePerMethodId.get(resource.getId())), resource);
+			counterPerMethodId4Methods.put(resource.getId(), 0);
 		}
 	}
 
 	private final class ThroughputSender4App extends TimerTask {
-		private String appId;
+		private Resource app;
 
-		public ThroughputSender4App(String appId) {
-			this.appId = appId;
+		public ThroughputSender4App(Resource app) {
+			this.app = app;
 		}
 
 		@Override
 		public void run() {
-			send(Long.toString(counter4App / appSamplingTime), appId);
+			send(Double.toString((double) counter4App / appSamplingTime), app);
 			counter4App = 0;
 		}
 	}

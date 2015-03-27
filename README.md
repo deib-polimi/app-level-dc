@@ -18,6 +18,13 @@ Take a look at the [documentation table of contents](doc/TOC.md).
 
 ## Change List
 
+v0.6.2:
+* fixed error that did not allow to parse annotated methods using reflections
+* added default configuration for simplifying local testing
+* performance improvements, minimized access to the KB
+* fixed conversion problems that caused average throughput to be sent at a wrong sampling time and sending wrong values
+* updatad to [data-collector-factory 0.3.3](https://github.com/deib-polimi/modaclouds-data-collector-factory/releases/tag/v0.3.3)
+
 v0.6.1:
 * Throughput can be collected also for the entire application
 

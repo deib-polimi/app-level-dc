@@ -16,6 +16,8 @@
  */
 package it.polimi.modaclouds.monitoring.appleveldc;
 
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Method;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,15 +28,15 @@ public aspect MonitorAspect {
 	private pointcut monitoredMethod(Monitor methodType) : execution(@Monitor * *(..)) && @annotation(methodType);
 
 	before(Monitor methodType) : monitoredMethod(methodType) {
-		String methodId = AppDataCollectorFactory.getMethodId(methodType.type());
-		logger.debug("Starting method: {}", methodId);
-		Metric.notifyAllMethodStarts(methodId);
+		Method method = new Method(AppDataCollectorFactory.getAppId(), methodType.type());
+		logger.debug("Starting method: {}", method.getId());
+		Metric.notifyAllMethodStarts(method);
 	}
 
 	after(Monitor methodType): monitoredMethod(methodType){
-		String methodId = AppDataCollectorFactory.getMethodId(methodType.type());
-		logger.debug("Ending method: {}", methodId);
-		Metric.notifyAllMethodEnds(methodId);
+		Method method = new Method(AppDataCollectorFactory.getAppId(), methodType.type());
+		logger.debug("Ending method: {}", method.getId());
+		Metric.notifyAllMethodEnds(method);
 	}
 
 }
