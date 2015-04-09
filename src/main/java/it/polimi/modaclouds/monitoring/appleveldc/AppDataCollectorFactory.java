@@ -53,7 +53,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 
 	static {
 		try {
-			init("");
+			init();
 		} catch (Exception e) {
 			logger.error("Could not initialize {} properly: {}",
 					AppDataCollectorFactory.class.getSimpleName(),
@@ -88,6 +88,7 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 	 * already started.
 	 */
 	public static void startSyncingWithKB() {
+		logger.info("Sarting syncing with KB");
 		_INSTANCE.startSyncingWithKB(kbSyncPeriod);
 	}
 
@@ -107,9 +108,10 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 		Metric.notifyAllExternalMethodEnds();
 	}
 
-	public static void init(String monitoredClassesPackagePrefix)
+	public static void init()
 			throws ConfigurationException {
 		if (!initialized) {
+			logger.debug("DEBUG enabled");
 			logger.info("Initializing {}",
 					AppDataCollectorFactory.class.getSimpleName());
 
@@ -127,13 +129,13 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 					kbURL, kbSyncPeriod);
 
 			logger.info("Parsing monitored methods");
-			monitoredMethods = parseMonitoredMethods(monitoredClassesPackagePrefix);
+			monitoredMethods = parseMonitoredMethods("");
 			monitoredApp = (InternalComponent) _INSTANCE.kb
 					.getResourceById(appId);
 
 			logger.info("Starting synchronization with KB");
 			if (config.isStartSyncingWithKB())
-				_INSTANCE.startSyncingWithKB(kbSyncPeriod);
+				startSyncingWithKB();
 			initialized = true;
 		}
 	}
@@ -150,10 +152,12 @@ public class AppDataCollectorFactory extends DataCollectorFactory {
 				.getMethodsAnnotatedWith(Monitor.class);
 		Set<it.polimi.modaclouds.qos_models.monitoring_ontology.Method> monitoredMethods = new HashSet<it.polimi.modaclouds.qos_models.monitoring_ontology.Method>();
 		for (Method method : annotatedMethods) {
-			monitoredMethods
-					.add(new it.polimi.modaclouds.qos_models.monitoring_ontology.Method(
-							AppDataCollectorFactory.getAppId(), method
-									.getAnnotation(Monitor.class).type()));
+			String methodType = method.getAnnotation(Monitor.class).type();
+			it.polimi.modaclouds.qos_models.monitoring_ontology.Method monitoredMethod = new it.polimi.modaclouds.qos_models.monitoring_ontology.Method(
+					AppDataCollectorFactory.getAppId(), methodType);
+			monitoredMethods.add(monitoredMethod);
+			logger.info("Monitored method found: type={}, id={}",
+					monitoredMethod.getType(), monitoredMethod.getId());
 		}
 		return monitoredMethods;
 	}

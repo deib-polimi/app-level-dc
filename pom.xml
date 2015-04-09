@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.polimi.modaclouds.monitoring</groupId>
 	<artifactId>app-level-dc</artifactId>
-	<version>0.6.2</version>
+	<version>0.6.3</version>
 
 	<inceptionYear>2014</inceptionYear>
 
@@ -94,7 +94,7 @@
 		<dependency>
 			<groupId>it.polimi.modaclouds.monitoring</groupId>
 			<artifactId>data-collector-factory</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>

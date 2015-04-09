@@ -112,9 +112,8 @@ Then you need to include in your build life cycle the aspectj plugin:
 - The data collector is automatically initialized as soon as the first monitored method is called. Configuration errors will be logged but won't raise any exception during automatic initialization. In order to check the correctness of the configuration and to avoid the initialization time to compromise the first collected datum it is suggested to initialize it manually at startup as follows:
 
 	```java
-	AppDataCollectorFactory.init(monitoredClassesPackagePrefix);
+	AppDataCollectorFactory.init();
 	```
-Setting a `monitoredClassesPackagePrefix` such as `"it.polimi.modaclouds.myapp"` will speedup the initial parsing of monitored methods. Automatic initialization will use the empty string `""`, which will make the library look for annotated methods in all possible packages.   
 
 KB and DDA must be running for the data collectors to be able to 
 retrieve their configuration from the KB and to be able to feed the DDA.
