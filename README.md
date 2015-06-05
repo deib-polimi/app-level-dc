@@ -1,5 +1,7 @@
-The MODAClouds Application Level Data Collector
+~~The MODAClouds Application Level Data Collector~~
 =======================
+> The library was migrated and included in the new [Tower 4Clouds Repository](https://github.com/deib-polimi/tower4clouds) under the data-collectors module, it was renamed java-app-dc
+------
 
 In the context of MODAClouds European project (www.modaclouds.eu), Politecnico was
 one of the partners involved in the development of the Monitoring Platform.
